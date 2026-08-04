@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-label="Attack and benign category heatmaps">
+<rect width="1600" height="1120" fill="#FAFAFA"/>
+<text x="70" y="70" font-family="Fira Sans, Arial, sans-serif" font-size="38" font-weight="700" fill="#23373B" text-anchor="start">Where each guard succeeds—and fails</text>
+<text x="70" y="105" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="400" fill="#596568" text-anchor="start">Rates aggregated across three identical repetitions</text>
+<text x="70" y="165" font-family="Fira Sans, Arial, sans-serif" font-size="25" font-weight="700" fill="#23373B" text-anchor="start">Attack success rate by family</text>
+<text x="70" y="194" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#596568" text-anchor="start">100% means every attack in that family leaked the secret.</text>
+<text x="430.0" y="217" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Authority</text>
+<text x="650.0" y="217" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Format Smuggling</text>
+<text x="870.0" y="217" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Multi Turn</text>
+<text x="1090.0" y="217" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Encoding</text>
+<text x="300" y="272" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Prompt only</text>
+<rect x="320" y="235" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="269" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="540" y="235" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="269" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="760" y="235" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="269" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="980" y="235" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="269" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<text x="300" y="330" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Promptbreak Guard</text>
+<rect x="320" y="293" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="327" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="540" y="293" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="327" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="760" y="293" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="327" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="980" y="293" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="327" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<text x="300" y="388" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Llama Guard 3</text>
+<rect x="320" y="351" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="385" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="540" y="351" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="385" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="760" y="351" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="385" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="980" y="351" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="385" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<text x="300" y="446" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">ShieldGemma</text>
+<rect x="320" y="409" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="443" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="540" y="409" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="443" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="760" y="409" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="443" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="980" y="409" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="443" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<text x="300" y="504" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Full Pipeline</text>
+<rect x="320" y="467" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="501" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="540" y="467" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="501" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="760" y="467" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="501" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="980" y="467" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="501" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<text x="70" y="575" font-family="Fira Sans, Arial, sans-serif" font-size="25" font-weight="700" fill="#23373B" text-anchor="start">False positive rate by benign trigger type</text>
+<text x="70" y="604" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#596568" text-anchor="start">100% means every harmless contrast case in that category was blocked.</text>
+<text x="430.0" y="627" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Debugging</text>
+<text x="650.0" y="627" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Encoding</text>
+<text x="870.0" y="627" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Password</text>
+<text x="1090.0" y="627" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">Roleplay</text>
+<text x="1310.0" y="627" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#23373B" text-anchor="middle">System Prompt</text>
+<text x="300" y="682" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Prompt only</text>
+<rect x="320" y="645" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="679" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="540" y="645" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="679" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="760" y="645" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="679" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="980" y="645" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="679" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="1200" y="645" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1306.0" y="679" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<text x="300" y="740" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Promptbreak Guard</text>
+<rect x="320" y="703" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="737" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="540" y="703" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="737" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="760" y="703" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="737" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="980" y="703" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="737" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="1200" y="703" width="212" height="50" rx="8" fill="#ECA762" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1306.0" y="737" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">67%</text>
+<text x="300" y="798" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Llama Guard 3</text>
+<rect x="320" y="761" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="795" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="540" y="761" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="795" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="760" y="761" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="795" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="980" y="761" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="795" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="1200" y="761" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1306.0" y="795" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<text x="300" y="856" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">ShieldGemma</text>
+<rect x="320" y="819" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="853" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="540" y="819" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="853" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="760" y="819" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="853" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="980" y="819" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="853" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<rect x="1200" y="819" width="212" height="50" rx="8" fill="#EEF2F1" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1306.0" y="853" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">0%</text>
+<text x="300" y="914" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="600" fill="#23373B" text-anchor="end">Full Pipeline</text>
+<rect x="320" y="877" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="426.0" y="911" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="540" y="877" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="646.0" y="911" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="760" y="877" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="866.0" y="911" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="980" y="877" width="212" height="50" rx="8" fill="#EB811B" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1086.0" y="911" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+<rect x="1200" y="877" width="212" height="50" rx="8" fill="#ECA762" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1306.0" y="911" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#23373B" text-anchor="middle">67%</text>
+<rect x="70" y="985" width="1460" height="75" rx="16" fill="#F3F5F5" stroke="#D3D8D7" stroke-width="2"/>
+<text x="100" y="1018" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#C86424" text-anchor="start">Pattern:</text>
+<text x="190" y="1018" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="600" fill="#23373B" text-anchor="start">Llama Guard catches format-smuggling only; Promptbreak misses encoding; the Context Guard closes that gap.</text>
+<text x="190" y="1045" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#596568" text-anchor="start">Promptbreak&#x27;s false positives affect nearly every benign category, not just one edge case.</text>
+</svg>
