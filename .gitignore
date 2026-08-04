@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.venv/
+.env
+
+# Keep compact, reproducible evaluation artifacts in Git. Large raster exports
+# and ad-hoc files created by local runs stay untracked.
+evaluation-results/*
+!evaluation-results/*.json
+!evaluation-results/*.md
+!evaluation-results/visualizations/
+evaluation-results/visualizations/*
+!evaluation-results/visualizations/*.svg
+!evaluation-results/visualizations/index.html
+
+# Local Typst render checks.
+pitch/tmp/

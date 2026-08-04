@@ -1,0 +1,15 @@
+[project]
+name = "prompt-injection-escape-room"
+version = "1.0.0"
+description = "A local red-team game comparing prompt-injection defenses with Ollama"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "tqdm>=4.66,<5",
+]
+
+[project.scripts]
+promptbreak = "main:main"
+
+[tool.uv]
+package = false

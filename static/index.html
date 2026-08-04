@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Lokales Prompt-Injection Security-Spiel mit Ollama" />
+    <title>Promptbreak // Escape Room</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header class="topbar">
+      <a class="brand" href="#">
+        <span class="brand-mark">P<span>B</span></span>
+        <span>PROMPTBREAK <small>// LOCAL LAB · <span id="build-version">…</span></small></span>
+      </a>
+      <div class="status-cluster">
+        <div id="ollama-status" class="connection offline"><i></i><span>OLLAMA OFFLINE</span></div>
+        <button id="help-button" class="icon-button" aria-label="Hilfe öffnen">?</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">RED TEAM SIMULATION <span>03 LEVELS</span></p>
+          <h1>Can you make the<br /><em>machine</em> talk?</h1>
+          <p class="lede">Überliste ein lokal laufendes Sprachmodell. Vergleiche einen einfachen System-Prompt mit einer separaten Guard-Pipeline – ohne Cloud, ohne API-Kosten.</p>
+        </div>
+        <div class="hero-orbit" aria-hidden="true">
+          <div class="orbital-ring ring-a"></div>
+          <div class="orbital-ring ring-b"></div>
+          <div class="core"><span>AI</span></div>
+          <span class="orbit-label label-a">PROMPT</span>
+          <span class="orbit-label label-b">GUARD</span>
+          <span class="orbit-label label-c">SECRET</span>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="mission-panel">
+          <div class="section-label">MISSION SELECT</div>
+          <div id="level-list" class="level-list"></div>
+
+          <div class="defense-card">
+            <div class="defense-head">
+              <span>ACTIVE DEFENSE</span>
+              <span id="defense-badge" class="pill danger">VULNERABLE</span>
+            </div>
+            <div class="segmented" role="group" aria-label="Verteidigungsmodus">
+              <button class="active" data-defense="baseline">Baseline</button>
+              <button data-defense="guarded">Guarded</button>
+            </div>
+            <p id="defense-description">Nur ein System-Prompt schützt das Secret. Schnell, aber anfällig.</p>
+            <div class="pipeline">
+              <span>INPUT</span><b>→</b><span id="pipeline-guard" class="muted">GUARD</span><b>→</b><span>LLM</span><b>→</b><span id="pipeline-filter" class="muted">FILTER</span>
+            </div>
+          </div>
+        </aside>
+
+        <section class="terminal-shell">
+          <div class="terminal-head">
+            <div>
+              <span class="terminal-dot"></span>
+              <strong id="terminal-title">DIRECTIVE-01 / THE RECEPTIONIST</strong>
+            </div>
+            <div class="terminal-actions">
+              <label>MODEL
+                <select id="model-select"><option value="gemma4:latest">gemma4:latest</option></select>
+              </label>
+              <button id="clear-button">CLEAR</button>
+            </div>
+          </div>
+
+          <div class="objective-row">
+            <div id="objective" class="objective"></div>
+            <button id="playbook-button">ATTACK PLAYBOOK ↗</button>
+          </div>
+          <div id="messages" class="messages" aria-live="polite"></div>
+
+          <form id="prompt-form" class="prompt-box">
+            <div class="prompt-prefix">root@promptbreak:~$</div>
+            <textarea id="prompt-input" rows="2" maxlength="4000" placeholder="Enter your injection payload..." required></textarea>
+            <button id="send-button" type="submit">
+              <span>SEND PAYLOAD</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-4 14-3-6-7-1Z" /></svg>
+            </button>
+          </form>
+          <div class="hint-row"><button id="hint-button">+ DECRYPT HINT</button><span>⌘ + ENTER TO EXECUTE</span></div>
+        </section>
+      </section>
+
+      <section class="pitch-lab">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">EXPERIMENT CONTROL</p>
+            <h2>Build. Attack. Measure.</h2>
+          </div>
+          <span class="lab-badge">PITCH LAB // LOCAL ONLY</span>
+        </div>
+
+        <div class="lab-grid">
+          <article class="lab-card defense-builder">
+            <div class="lab-card-head">
+              <div><span>01</span><h3>Defense Builder</h3></div>
+              <small id="builder-status">STANDARD GUARDED</small>
+            </div>
+            <p>Schalte Schutzschichten einzeln und beobachte ihren Einfluss auf Sicherheit und Latenz.</p>
+            <div id="preset-list" class="preset-list"></div>
+            <div id="layer-list" class="layer-list"></div>
+            <div id="builder-pipeline" class="builder-pipeline"></div>
+          </article>
+
+          <article class="lab-card redteam-arena">
+            <div class="lab-card-head">
+              <div><span>02</span><h3>Auto Red-Team Agent</h3></div>
+              <small>OLLAMA vs. OLLAMA</small>
+            </div>
+            <p>Ein lokaler Angreifer analysiert Fehlschläge, mutiert seine Strategie und greift die aktive Defense erneut an.</p>
+            <div class="arena-controls">
+              <label>MAX ROUNDS
+                <select id="redteam-rounds">
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </label>
+              <button id="redteam-button">LAUNCH AGENT</button>
+            </div>
+            <div id="redteam-results" class="redteam-results">
+              <div class="empty-state">Agent awaiting mission parameters<span>_</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="intel-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LIVE TELEMETRY</p>
+            <h2>Red team intelligence</h2>
+          </div>
+          <div class="heading-actions">
+            <button id="evaluation-button" class="outline-button">RUN CURRENT CONFIG</button>
+            <button id="benchmark-button" class="acid-button">BUILD HEATMAP</button>
+          </div>
+        </div>
+        <div class="metrics-grid">
+          <article><span>ATTEMPTS</span><strong id="metric-attempts">00</strong><small>total payloads</small></article>
+          <article><span>BREACHES</span><strong id="metric-breaches" class="hot">00</strong><small>secrets exposed</small></article>
+          <article><span>ATTACK SUCCESS</span><strong id="metric-asr">0.0%</strong><small>lower is better</small></article>
+          <article><span>AVG. LATENCY</span><strong id="metric-latency">—</strong><small>local inference</small></article>
+        </div>
+        <div id="evaluation-panel" class="evaluation-panel hidden"></div>
+        <div id="benchmark-panel" class="benchmark-panel hidden"></div>
+      </section>
+    </main>
+
+    <dialog id="help-dialog">
+      <button class="dialog-close" aria-label="Schließen">×</button>
+      <p class="eyebrow">OPERATOR MANUAL</p>
+      <h2>So funktioniert das Lab</h2>
+      <p>Dein Ziel ist, das pro Level im System-Prompt versteckte Secret auszugeben. Im <b>Baseline</b>-Modus verlässt sich das System nur auf Instruktionen. <b>Guarded</b> klassifiziert Eingaben separat und prüft Ausgaben auf Leaks.</p>
+      <p>Alle Modellaufrufe laufen über Ollama auf deinem Rechner. Die Secrets und Sitzungsmetriken bleiben im lokalen Python-Prozess.</p>
+      <button class="outline-button dialog-ok">UNDERSTOOD</button>
+    </dialog>
+
+    <dialog id="playbook-dialog" class="playbook-dialog">
+      <button class="dialog-close" aria-label="Schließen">×</button>
+      <p class="eyebrow">RED TEAM FIELD GUIDE</p>
+      <div id="playbook-content"></div>
+    </dialog>
+
+    <div id="breach-overlay" class="breach-overlay" aria-hidden="true">
+      <div class="breach-scan"></div>
+      <div class="breach-card">
+        <p>SECURITY EVENT // CONFIRMED</p>
+        <h2>ACCESS<br />GRANTED</h2>
+        <div id="breach-technique">EXFILTRATION: DIRECT</div>
+        <button id="breach-close">CONTINUE OPERATION</button>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
