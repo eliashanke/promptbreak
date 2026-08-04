@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="500" viewBox="0 0 1400 500">
+  <style>
+    .h { font: 800 30px "Fira Sans", Arial, sans-serif; fill: #23373B; }
+    .b { font: 500 20px "Fira Sans", Arial, sans-serif; fill: #596568; }
+    .n { font: 800 35px "Fira Sans", Arial, sans-serif; fill: #FFFFFF; }
+    .tag { font: 700 16px "Fira Sans", Arial, sans-serif; letter-spacing: 1.4px; fill: #23373B; }
+  </style>
+  <rect width="1400" height="500" rx="30" fill="#FAFAFA" stroke="#D3D8D7" stroke-width="2"/>
+  <text x="70" y="68" class="h">PLANNED 30-CASE EVALUATION SET</text>
+  <text x="70" y="105" class="b">Externally sourced where possible · application-specific where necessary</text>
+  <g transform="translate(70,150)">
+    <g fill="#EB811B">
+      <rect x="0" y="0" width="58" height="58" rx="12"/><rect x="68" y="0" width="58" height="58" rx="12"/>
+      <rect x="136" y="0" width="58" height="58" rx="12"/><rect x="204" y="0" width="58" height="58" rx="12"/>
+      <rect x="272" y="0" width="58" height="58" rx="12"/><rect x="0" y="68" width="58" height="58" rx="12"/>
+      <rect x="68" y="68" width="58" height="58" rx="12"/><rect x="136" y="68" width="58" height="58" rx="12"/>
+      <rect x="204" y="68" width="58" height="58" rx="12"/><rect x="272" y="68" width="58" height="58" rx="12"/>
+    </g>
+    <g fill="#7B878A">
+      <rect x="350" y="0" width="58" height="58" rx="12"/><rect x="418" y="0" width="58" height="58" rx="12"/>
+      <rect x="486" y="0" width="58" height="58" rx="12"/>
+    </g>
+    <g fill="#A2AAAC">
+      <rect x="350" y="68" width="58" height="58" rx="12"/><rect x="418" y="68" width="58" height="58" rx="12"/>
+    </g>
+    <g fill="#E4E8E7">
+      <rect x="0" y="174" width="58" height="58" rx="12"/><rect x="68" y="174" width="58" height="58" rx="12"/>
+      <rect x="136" y="174" width="58" height="58" rx="12"/><rect x="204" y="174" width="58" height="58" rx="12"/>
+      <rect x="272" y="174" width="58" height="58" rx="12"/><rect x="340" y="174" width="58" height="58" rx="12"/>
+      <rect x="408" y="174" width="58" height="58" rx="12"/><rect x="476" y="174" width="58" height="58" rx="12"/>
+      <rect x="0" y="242" width="58" height="58" rx="12"/><rect x="68" y="242" width="58" height="58" rx="12"/>
+      <rect x="136" y="242" width="58" height="58" rx="12"/><rect x="204" y="242" width="58" height="58" rx="12"/>
+      <rect x="272" y="242" width="58" height="58" rx="12"/><rect x="340" y="242" width="58" height="58" rx="12"/>
+      <rect x="408" y="242" width="58" height="58" rx="12"/>
+    </g>
+  </g>
+  <g transform="translate(720,148)">
+    <rect width="610" height="282" rx="24" fill="#F3F5F5" stroke="#D3D8D7" stroke-width="2"/>
+    <circle cx="55" cy="55" r="24" fill="#EB811B"/><text x="55" y="67" text-anchor="middle" class="n">10</text>
+    <text x="96" y="50" class="h" font-size="24">DIRECT ATTACKS</text><text x="96" y="77" class="b">Open Prompt Injection · adapted</text>
+    <circle cx="55" cy="125" r="24" fill="#7B878A"/><text x="55" y="137" text-anchor="middle" class="n">3</text>
+    <text x="96" y="120" class="h" font-size="24">MULTI-TURN</text><text x="96" y="147" class="b">Promptbreak-specific · documented</text>
+    <circle cx="55" cy="195" r="24" fill="#A2AAAC"/><text x="55" y="207" text-anchor="middle" class="n">2</text>
+    <text x="96" y="190" class="h" font-size="24">ENCODING / EXFILTRATION</text><text x="96" y="217" class="b">Promptbreak-specific · deterministic judge</text>
+    <circle cx="55" cy="255" r="24" fill="#E4E8E7"/><text x="55" y="267" text-anchor="middle" class="n" fill="#23373B">15</text>
+    <text x="96" y="250" class="h" font-size="24">BENIGN TRIGGER CASES</text><text x="96" y="277" class="b">NotInject · overblocking stress test</text>
+  </g>
+</svg>
