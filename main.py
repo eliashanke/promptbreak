@@ -26,10 +26,13 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
 from model_adapters import request_overrides, resolve_model_tag
+from build_results_dashboard import build_dashboard_data
 
 
 ROOT = Path(__file__).resolve().parent
 STATIC_DIR = ROOT / "static"
+DASHBOARD_DIR = ROOT / "dashboard"
+RESULTS_DIR = ROOT / "evaluation-results"
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "gemma4:latest")
 DEFAULT_GUARD_THRESHOLD = float(os.environ.get("PROMPTBREAK_GUARD_THRESHOLD", "0.55"))
@@ -1549,6 +1552,18 @@ class AppHandler(SimpleHTTPRequestHandler):
             raise ValueError("Request zu groß")
         return json.loads(self.rfile.read(length).decode("utf-8"))
 
+    def serve_tree(self, directory: Path, request_path: str, *, head_only: bool = False) -> None:
+        """Serve one explicitly routed static tree with stdlib path normalization."""
+        original_directory = self.directory
+        original_path = self.path
+        self.directory = str(directory)
+        self.path = request_path
+        try:
+            super().do_HEAD() if head_only else super().do_GET()
+        finally:
+            self.directory = original_directory
+            self.path = original_path
+
     def do_GET(self) -> None:
         path = urlparse(self.path).path
         if path == "/api/config":
@@ -1576,12 +1591,49 @@ class AppHandler(SimpleHTTPRequestHandler):
                 SESSIONS[session_id] = SessionStats()
             self.send_json({"session_id": session_id, "stats": asdict(SESSIONS[session_id])})
             return
+        if path == "/api/results":
+            try:
+                self.send_json(build_dashboard_data())
+            except (OSError, KeyError, ValueError, json.JSONDecodeError) as exc:
+                self.send_json(
+                    {"error": f"Ergebnisdaten konnten nicht geladen werden: {exc}"},
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                )
+            return
         if path.startswith("/api/"):
             self.send_json({"error": "Unbekannter API-Endpunkt"}, HTTPStatus.NOT_FOUND)
             return
         if path == "/":
             self.path = "/index.html"
+        elif path == "/dashboard":
+            self.send_response(HTTPStatus.PERMANENT_REDIRECT)
+            self.send_header("Location", "/dashboard/")
+            self.end_headers()
+            return
+        elif path.startswith("/dashboard/"):
+            self.serve_tree(DASHBOARD_DIR, path.removeprefix("/dashboard"))
+            return
+        elif path.startswith("/evaluation-results/"):
+            self.serve_tree(RESULTS_DIR, path.removeprefix("/evaluation-results"))
+            return
         super().do_GET()
+
+    def do_HEAD(self) -> None:
+        path = urlparse(self.path).path
+        if path == "/dashboard":
+            self.send_response(HTTPStatus.PERMANENT_REDIRECT)
+            self.send_header("Location", "/dashboard/")
+            self.end_headers()
+            return
+        if path.startswith("/dashboard/"):
+            self.serve_tree(DASHBOARD_DIR, path.removeprefix("/dashboard"), head_only=True)
+            return
+        if path.startswith("/evaluation-results/"):
+            self.serve_tree(RESULTS_DIR, path.removeprefix("/evaluation-results"), head_only=True)
+            return
+        if path == "/":
+            self.path = "/index.html"
+        super().do_HEAD()
 
     def do_POST(self) -> None:
         try:

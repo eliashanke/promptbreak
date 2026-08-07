@@ -97,7 +97,7 @@ Ein anderes Modell lässt sich entweder in der Oberfläche auswählen oder beim
 Start festlegen:
 
 ```bash
-OLLAMA_MODEL=gemma3:4b python3 main.py --port 8080
+OLLAMA_MODEL=gemma3:4b python3 main.py --port 8000
 ```
 
 Für einen abweichenden Ollama-Server:
@@ -327,6 +327,30 @@ beträgt ihre End-to-End-Benign-Blockrate 13,3 %, während die Input-Guard-FPR
 
 Der Lauf ist ein vollständiger Modell-/Konfigurationspass, aber wegen nur einer
 Wiederholung kein Ersatz für die noch offene finale 30×5×3-Evaluation.
+
+### Result-Dashboard
+
+Das [Result-Dashboard](dashboard/index.html) fasst die kanonischen
+Gemma-, Qwen-4B- und Qwen-27B-Reports sowie Threshold-, Attribution- und
+Rainbow-Lite-Ergebnisse zusammen. Der Webapp-Server liefert es unter
+`/dashboard/` aus; die Seite lädt die kompakte, hash-verknüpfte Datenansicht bei
+jedem Aufruf über `/api/results` direkt aus den versionierten JSON-Reports.
+
+Eine API-Kostenschätzung trennt Input- und Output-Tokens und rechnet sie gegen
+datierte Preisprofile. Sie ist kontrafaktisch: Die gemessenen Läufe liefen lokal
+über Ollama und verursachten keine API-Kosten. Für Qwen 3.5 4B wird mangels eines
+direkten Alibaba-Endpunkts das klar markierte Qwen-3.5-Flash-Profil als Proxy
+verwendet.
+
+```bash
+uv run python main.py
+```
+
+Anschließend liegen Webapp und Dashboard unter
+`http://127.0.0.1:8000/` beziehungsweise
+`http://127.0.0.1:8000/dashboard/`. Mit `uv run python
+build_results_dashboard.py` kann weiterhin optional ein statischer
+`dashboard/data.js`-Snapshot erzeugt werden; die Webapp benötigt ihn nicht.
 
 ### Fortschrittsbalken und ETA
 

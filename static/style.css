@@ -38,6 +38,8 @@ button { cursor: pointer; }
 .brand-mark { width: 34px; height: 34px; background: var(--acid); color: #080a08; display: grid; place-items: center; font-weight: 800; transform: skew(-7deg); }
 .brand-mark span { opacity: .55; }
 .status-cluster { display: flex; gap: 14px; align-items: center; }
+.results-link { border: 1px solid var(--line); padding: 10px 12px; color: var(--text); text-decoration: none; font: 9px var(--mono); letter-spacing: .08em; }
+.results-link:hover, .results-link:focus-visible { color: #080a08; background: var(--acid); border-color: var(--acid); outline: none; }
 .connection { border: 1px solid var(--line); padding: 9px 13px; font: 500 10px var(--mono); letter-spacing: .08em; display: flex; align-items: center; gap: 8px; }
 .connection i { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 10px var(--orange); }
 .connection.online i { background: var(--acid); box-shadow: 0 0 10px var(--acid); }

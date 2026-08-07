@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Promptbreak evaluation result dashboard" />
+    <title>Promptbreak // Results</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark">P<span>B</span></span>
+        <span>PROMPTBREAK <small>// RESULT INTELLIGENCE</small></span>
+      </a>
+      <div class="dashboard-actions">
+        <a class="lab-link" href="/">OPEN LAB ↗</a>
+        <div class="top-status"><i></i><span>LIVE REPORT API</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">EVALUATION CONTROL <span>LOCAL OLLAMA</span></p>
+          <h1>Evidence,<br /><em>not vibes.</em></h1>
+          <p class="lede">Security, utility, latency and adaptive red-team evidence across the versioned Promptbreak evaluation runs.</p>
+        </div>
+        <div class="hero-readout" aria-label="Evaluation corpus summary">
+          <span>CANONICAL OBSERVATIONS</span>
+          <strong id="total-observations">—</strong>
+          <small id="latest-result">LATEST RESULT —</small>
+        </div>
+      </section>
+
+      <nav id="run-tabs" class="run-tabs" aria-label="Select evaluation run"></nav>
+
+      <section class="dashboard-shell">
+        <div id="repair-note" class="repair-note hidden"></div>
+        <div id="kpi-grid" class="kpi-grid"></div>
+
+        <section class="panel comparison-panel">
+          <header class="panel-head">
+            <div><span>01</span><div><p>SECURITY × UTILITY</p><h2>Defense comparison</h2></div></div>
+            <small id="run-meta">—</small>
+          </header>
+          <div class="legend"><span class="legend-asr">ASR · lower is better</span><span class="legend-fpr">Input FPR · lower is better</span></div>
+          <div id="defense-chart" class="defense-chart"></div>
+        </section>
+
+        <div class="two-column">
+          <section class="panel">
+            <header class="panel-head compact">
+              <div><span>02</span><div><p>CONFIDENCE</p><h2>Threshold profile</h2></div></div>
+              <select id="threshold-model" aria-label="Threshold model"></select>
+            </header>
+            <div id="threshold-chart" class="threshold-chart"></div>
+          </section>
+
+          <section class="panel">
+            <header class="panel-head compact">
+              <div><span>03</span><div><p>ERROR ANALYSIS</p><h2>Input attribution</h2></div></div>
+              <small>BENIGN CASES</small>
+            </header>
+            <div id="attribution-panel"></div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <header class="panel-head">
+            <div><span>04</span><div><p>CATEGORY VIEW</p><h2>Attack success heatmap</h2></div></div>
+            <small>ROWS = DEFENSES · COLUMNS = ATTACK FAMILIES</small>
+          </header>
+          <div id="category-heatmap" class="category-heatmap"></div>
+        </section>
+
+        <section class="panel">
+          <header class="panel-head">
+            <div><span>05</span><div><p>CROSS-RUN</p><h2>Model snapshot</h2></div></div>
+            <small>DESCRIPTIVE COMPARISON</small>
+          </header>
+          <div id="model-table" class="model-table"></div>
+          <p id="comparison-note" class="method-note"></p>
+        </section>
+
+        <section class="panel">
+          <header class="panel-head">
+            <div><span>06</span><div><p>COST SCENARIO</p><h2>API cost estimate</h2></div></div>
+            <select id="pricing-profile" aria-label="API pricing profile"></select>
+          </header>
+          <div id="pricing-panel"></div>
+          <p class="method-note">Counterfactual estimate: the evaluation ran locally via Ollama at $0 API cost. The calculation prices every recorded model call with the selected profile; mixed-model provider bills may differ.</p>
+        </section>
+
+        <section class="panel">
+          <header class="panel-head">
+            <div><span>07</span><div><p>ADAPTIVE TESTING</p><h2>Rainbow-Lite archive</h2></div></div>
+            <small>QUALITY-DIVERSITY · SEMINAR SCALE</small>
+          </header>
+          <div id="rainbow-grid" class="rainbow-grid"></div>
+          <p id="rainbow-note" class="method-note"></p>
+        </section>
+
+        <footer class="footer">
+          <div><span>DATA SOURCES</span><div id="source-links" class="source-links"></div></div>
+          <p>Generated from versioned JSON reports. No model calls are performed by this dashboard.</p>
+        </footer>
+      </section>
+    </main>
+
+    <dialog id="info-modal" aria-labelledby="info-modal-title">
+      <div class="modal-card">
+        <header>
+          <p id="info-modal-kicker">METRIC GUIDE</p>
+          <button id="info-modal-close" class="modal-close" type="button" aria-label="Close explanation">×</button>
+        </header>
+        <h2 id="info-modal-title"></h2>
+        <div id="info-modal-body" class="modal-body"></div>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
