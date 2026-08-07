@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="970" viewBox="0 0 1600 970" role="img" aria-label="Latency and computational cost">
+<rect width="1600" height="970" fill="#FAFAFA"/>
+<text x="70" y="70" font-family="Fira Sans, Arial, sans-serif" font-size="38" font-weight="700" fill="#23373B" text-anchor="start">Latency and computational cost</text>
+<text x="70" y="105" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="400" fill="#596568" text-anchor="start">Local API cost is €0; wall-clock time, calls, and tokens are the useful proxies.</text>
+<rect x="55" y="145" width="480" height="650" rx="22" fill="#FFFFFF" stroke="#D3D8D7" stroke-width="2"/>
+<text x="83" y="190" font-family="Fira Sans, Arial, sans-serif" font-size="24" font-weight="700" fill="#23373B" text-anchor="start">Warm latency</text>
+<text x="83" y="218" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="400" fill="#596568" text-anchor="start">p95 bar · p50 marker</text>
+<text x="83" y="275" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Prompt only</text>
+<rect x="83" y="293" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="83" y="293" width="176.67695761998314" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="405" y="311" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">13.8s</text>
+<line x1="83.0" y1="289" x2="83.0" y2="319" stroke="#23373B" stroke-width="3"/>
+<text x="83.0" y="335" font-family="Fira Sans, Arial, sans-serif" font-size="12" font-weight="400" fill="#596568" text-anchor="middle">p50 0.0s</text>
+<text x="83" y="370" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Promptbreak Guard</text>
+<rect x="83" y="388" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="83" y="388" width="236.41976883627177" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="405" y="406" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">18.5s</text>
+<line x1="152.94871533181944" y1="384" x2="152.94871533181944" y2="414" stroke="#23373B" stroke-width="3"/>
+<text x="152.94871533181944" y="430" font-family="Fira Sans, Arial, sans-serif" font-size="12" font-weight="400" fill="#596568" text-anchor="middle">p50 5.5s</text>
+<text x="83" y="465" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Llama Guard 3</text>
+<rect x="83" y="483" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="83" y="483" width="272.7272727272727" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="405" y="501" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">21.4s</text>
+<line x1="115.96507029316459" y1="479" x2="115.96507029316459" y2="509" stroke="#23373B" stroke-width="3"/>
+<text x="115.96507029316459" y="525" font-family="Fira Sans, Arial, sans-serif" font-size="12" font-weight="400" fill="#596568" text-anchor="middle">p50 2.6s</text>
+<text x="83" y="560" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">ShieldGemma</text>
+<rect x="83" y="578" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="83" y="578" width="242.98981961064476" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="405" y="596" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">19.0s</text>
+<line x1="97.56892812492026" y1="574" x2="97.56892812492026" y2="604" stroke="#23373B" stroke-width="3"/>
+<text x="97.56892812492026" y="620" font-family="Fira Sans, Arial, sans-serif" font-size="12" font-weight="400" fill="#596568" text-anchor="middle">p50 1.1s</text>
+<text x="83" y="655" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Full Pipeline</text>
+<rect x="83" y="673" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="83" y="673" width="246.9190926951241" height="22" rx="11" fill="#23373B" stroke="none" stroke-width="0"/>
+<text x="405" y="691" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">19.4s</text>
+<line x1="150.24415074120378" y1="669" x2="150.24415074120378" y2="699" stroke="#23373B" stroke-width="3"/>
+<text x="150.24415074120378" y="715" font-family="Fira Sans, Arial, sans-serif" font-size="12" font-weight="400" fill="#596568" text-anchor="middle">p50 5.3s</text>
+<rect x="570" y="145" width="480" height="650" rx="22" fill="#FFFFFF" stroke="#D3D8D7" stroke-width="2"/>
+<text x="598" y="190" font-family="Fira Sans, Arial, sans-serif" font-size="24" font-weight="700" fill="#23373B" text-anchor="start">Model calls</text>
+<text x="598" y="218" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="400" fill="#596568" text-anchor="start">total across 30 observations</text>
+<text x="598" y="275" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Prompt only</text>
+<rect x="598" y="293" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="598" y="293" width="90.90909090909089" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="920" y="311" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">15.0</text>
+<text x="598" y="370" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Promptbreak Guard</text>
+<rect x="598" y="388" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="598" y="388" width="260.60606060606057" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="920" y="406" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">43.0</text>
+<text x="598" y="465" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Llama Guard 3</text>
+<rect x="598" y="483" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="598" y="483" width="272.7272727272727" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="920" y="501" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">45.0</text>
+<text x="598" y="560" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">ShieldGemma</text>
+<rect x="598" y="578" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="598" y="578" width="272.7272727272727" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="920" y="596" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">45.0</text>
+<text x="598" y="655" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Full Pipeline</text>
+<rect x="598" y="673" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="598" y="673" width="242.42424242424238" height="22" rx="11" fill="#23373B" stroke="none" stroke-width="0"/>
+<text x="920" y="691" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">40.0</text>
+<rect x="1085" y="145" width="480" height="650" rx="22" fill="#FFFFFF" stroke="#D3D8D7" stroke-width="2"/>
+<text x="1113" y="190" font-family="Fira Sans, Arial, sans-serif" font-size="24" font-weight="700" fill="#23373B" text-anchor="start">Tokens per case</text>
+<text x="1113" y="218" font-family="Fira Sans, Arial, sans-serif" font-size="15" font-weight="400" fill="#596568" text-anchor="start">prompt + completion</text>
+<text x="1113" y="275" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Prompt only</text>
+<rect x="1113" y="293" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="1113" y="293" width="99.61001227451405" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="1435" y="311" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">213.7</text>
+<text x="1113" y="370" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Promptbreak Guard</text>
+<rect x="1113" y="388" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="1113" y="388" width="228.95853078727797" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="1435" y="406" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">491.2</text>
+<text x="1113" y="465" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Llama Guard 3</text>
+<rect x="1113" y="483" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="1113" y="483" width="207.610198722829" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="1435" y="501" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">445.4</text>
+<text x="1113" y="560" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">ShieldGemma</text>
+<rect x="1113" y="578" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="1113" y="578" width="272.7272727272727" height="22" rx="11" fill="#EB811B" stroke="none" stroke-width="0"/>
+<text x="1435" y="596" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">585.1</text>
+<text x="1113" y="655" font-family="Fira Sans, Arial, sans-serif" font-size="16" font-weight="600" fill="#23373B" text-anchor="start">Full Pipeline</text>
+<rect x="1113" y="673" width="300" height="22" rx="11" fill="#F3F5F5" stroke="none" stroke-width="0"/>
+<rect x="1113" y="673" width="221.03447740091045" height="22" rx="11" fill="#23373B" stroke="none" stroke-width="0"/>
+<text x="1435" y="691" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="700" fill="#23373B" text-anchor="start">474.2</text>
+<rect x="70" y="835" width="1460" height="85" rx="16" fill="#F1E4D7" stroke="none" stroke-width="0"/>
+<text x="100" y="870" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="700" fill="#C86424" text-anchor="start">Interpretation:</text>
+<text x="235" y="870" font-family="Fira Sans, Arial, sans-serif" font-size="18" font-weight="600" fill="#23373B" text-anchor="start">Compare guard-refusal, deterministic legacy, and target-model paths before interpreting end-to-end latency.</text>
+<text x="235" y="900" font-family="Fira Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#596568" text-anchor="start">Early blocking can reduce latency, while allowed prompts include both guard and target inference.</text>
+</svg>

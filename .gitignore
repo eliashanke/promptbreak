@@ -13,6 +13,10 @@ evaluation-results/*
 evaluation-results/visualizations/*
 !evaluation-results/visualizations/*.svg
 !evaluation-results/visualizations/index.html
+!evaluation-results/visualizations/*/
+evaluation-results/visualizations/*/*
+!evaluation-results/visualizations/*/*.svg
+!evaluation-results/visualizations/*/index.html
 
 # Local Typst render checks.
 pitch/tmp/
