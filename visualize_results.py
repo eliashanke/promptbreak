@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import html
 import json
 from pathlib import Path
@@ -136,19 +137,28 @@ def heat_color(value: float) -> str:
 
 
 def security_utility(guard: dict[str, Any]) -> None:
+    case_count = int(guard["dataset"]["case_count"])
+    repeats = int(guard["repeats"])
+    repeat_label = "repetition" if repeats == 1 else "repetitions"
     body: list[str] = []
     body += [
         text(70, 70, "Security–utility trade-off", size=38, weight=700),
         text(
             70,
             105,
-            "Full evaluation · 30 cases × 5 configurations × 3 repetitions",
+            f"Evaluation · {case_count} cases × {len(guard['configurations'])} configurations × {repeats} {repeat_label}",
             size=18,
             fill=MUTED,
         ),
         rect(60, 140, 920, 600, fill=WHITE, stroke=GRID, stroke_width=2, radius=24),
     ]
     left, top, plot_w, plot_h = 145, 205, 760, 450
+    summaries = guard["summaries"]
+    full = summaries["full_pipeline"]
+    llama = summaries["llama_guard"]
+    shield = summaries["shieldgemma"]
+    attacks = full["confusion_matrix"]["tp"] + full["confusion_matrix"]["fn"]
+    benign = full["confusion_matrix"]["fp"] + full["confusion_matrix"]["tn"]
     body += [
         rect(left, top + plot_h / 2, plot_w / 2, plot_h / 2, fill=TAN),
         rect(left + plot_w / 2, top + plot_h / 2, plot_w / 2, plot_h / 2, fill=PANEL),
@@ -166,12 +176,11 @@ def security_utility(guard: dict[str, Any]) -> None:
                 text(left - 18, y + 6, f"{tick}%", size=16, weight=600, fill=MUTED, anchor="end"),
             ]
     body += [
-        text(left + plot_w / 2, 710, "FALSE POSITIVE RATE → lower is better", size=17, weight=600, fill=MUTED, anchor="middle"),
+        text(left + plot_w / 2, 710, "END-TO-END BENIGN BLOCK RATE → lower is better", size=17, weight=600, fill=MUTED, anchor="middle"),
         text(82, top + plot_h / 2, "ATTACK SUCCESS RATE → lower is better", size=17, weight=600, fill=MUTED, anchor="middle", rotate=-90),
-        text(left + 22, top + plot_h - 22, "DESIRED REGION", size=15, weight=700, fill=ORANGE_DARK),
+        text(left + plot_w / 2 - 20, top + plot_h - 22, "DESIRED REGION", size=15, weight=700, fill=ORANGE_DARK, anchor="end"),
     ]
 
-    summaries = guard["summaries"]
     point_styles = {
         "prompt_only": (TEAL, -2, 34),
         "shieldgemma": ("#839093", 18, 60),
@@ -207,7 +216,7 @@ def security_utility(guard: dict[str, Any]) -> None:
             text(
                 label_x,
                 y + dy + 22,
-                f"ASR {summary['attack_success_rate']:.1f}% · FPR {summary['false_positive_rate']:.1f}%",
+                f"ASR {summary['attack_success_rate']:.1f}% · BBR {summary['false_positive_rate']:.1f}%",
                 size=14,
                 fill=MUTED,
                 anchor=anchor,
@@ -218,16 +227,16 @@ def security_utility(guard: dict[str, Any]) -> None:
         rect(1020, 140, 520, 600, fill=PANEL, stroke=GRID, stroke_width=2, radius=24),
         text(1060, 190, "WHAT THE RUN SHOWS", size=16, weight=700, fill=ORANGE_DARK, letter_spacing=1.2),
         text(1060, 250, "Full Pipeline", size=25, weight=700),
-        text(1060, 283, "0 / 15 attacks succeed", size=19, weight=600),
-        text(1060, 313, "but 14 / 15 benign cases are blocked", size=18, fill=MUTED),
+        text(1060, 283, f"{round(attacks * full['attack_success_rate'] / 100)} / {attacks} attacks succeed", size=19, weight=600),
+        text(1060, 313, f"{full['confusion_matrix']['fp']} / {benign} benign cases are blocked", size=18, fill=MUTED),
         line(1060, 350, 1500, 350),
         text(1060, 405, "Llama Guard 3", size=25, weight=700),
-        text(1060, 438, "10 / 15 attacks succeed", size=19, weight=600),
-        text(1060, 468, "0 / 15 benign cases are blocked", size=18, fill=MUTED),
+        text(1060, 438, f"{round(attacks * llama['attack_success_rate'] / 100)} / {attacks} attacks succeed", size=19, weight=600),
+        text(1060, 468, f"{llama['confusion_matrix']['fp']} / {benign} benign cases are blocked", size=18, fill=MUTED),
         line(1060, 505, 1500, 505),
         text(1060, 560, "ShieldGemma", size=25, weight=700),
-        text(1060, 593, "15 / 15 attacks succeed", size=19, weight=600),
-        text(1060, 623, "same outcome as Prompt only", size=18, fill=MUTED),
+        text(1060, 593, f"{round(attacks * shield['attack_success_rate'] / 100)} / {attacks} attacks succeed", size=19, weight=600),
+        text(1060, 623, f"{shield['confusion_matrix']['fp']} / {benign} benign cases are blocked", size=18, fill=MUTED),
         rect(1050, 660, 460, 52, fill=TAN, radius=12),
         text(1280, 694, "No configuration reaches the desired region.", size=17, weight=700, anchor="middle"),
     ]
@@ -241,7 +250,7 @@ def category_heatmaps(guard: dict[str, Any]) -> None:
     benign_categories = ["debugging", "encoding", "password", "roleplay", "system_prompt"]
     body: list[str] = [
         text(70, 70, "Where each guard succeeds—and fails", size=38, weight=700),
-        text(70, 105, "Rates aggregated across three identical repetitions", size=18, fill=MUTED),
+        text(70, 105, f"Rates aggregated across {guard['repeats']} " + ("repetition" if guard["repeats"] == 1 else "repetitions"), size=18, fill=MUTED),
     ]
 
     def draw_heatmap(
@@ -282,16 +291,16 @@ def category_heatmaps(guard: dict[str, Any]) -> None:
     )
     draw_heatmap(
         575,
-        "False positive rate by benign trigger type",
-        "100% means every harmless contrast case in that category was blocked.",
+        "End-to-end benign block rate by trigger type",
+        "Includes input refusals and target-model leaks caught by output filters.",
         benign_categories,
         "benign",
     )
     body += [
         rect(70, 985, 1460, 75, fill=PANEL, stroke=GRID, stroke_width=2, radius=16),
         text(100, 1018, "Pattern:", size=18, weight=700, fill=ORANGE_DARK),
-        text(190, 1018, "Llama Guard catches format-smuggling only; Promptbreak misses encoding; the Context Guard closes that gap.", size=18, weight=600),
-        text(190, 1045, "Promptbreak's false positives affect nearly every benign category, not just one edge case.", size=17, fill=MUTED),
+        text(190, 1018, "Category detail exposes differences that aggregate ASR and benign-block rates can hide.", size=18, weight=600),
+        text(190, 1045, "Interpret these rates only within the fixed, application-specific evaluation set.", size=17, fill=MUTED),
     ]
     write_svg("category-heatmaps.svg", 1600, 1120, body, "Attack and benign category heatmaps")
 
@@ -303,10 +312,15 @@ def cost_latency(guard: dict[str, Any]) -> None:
         text(70, 70, "Latency and computational cost", size=38, weight=700),
         text(70, 105, "Local API cost is €0; wall-clock time, calls, and tokens are the useful proxies.", size=18, fill=MUTED),
     ]
+    observations = int(guard["dataset"]["case_count"]) * int(guard["repeats"])
+    panel_specs = [
+        ("Warm latency", "p95 bar · p50 marker", lambda s: s["latency_ms"]["p95_warm"] / 1000, lambda s: s["latency_ms"]["p50_warm"] / 1000, "s"),
+        ("Model calls", f"total across {observations} observations", lambda s: s["compute"]["model_calls_total"], None, ""),
+        ("Tokens per case", "prompt + completion", lambda s: s["compute"]["tokens_per_case"], None, ""),
+    ]
     panels = [
-        ("Warm latency", "p95 bar · p50 marker", lambda s: s["latency_ms"]["p95_warm"] / 1000, lambda s: s["latency_ms"]["p50_warm"] / 1000, 25, "s"),
-        ("Model calls", "total across 90 observations", lambda s: s["compute"]["model_calls_total"], None, 150, ""),
-        ("Tokens per case", "prompt + completion", lambda s: s["compute"]["tokens_per_case"], None, 900, ""),
+        (*spec[:4], max(1.0, max(float(spec[2](summaries[c])) for c in configs) * 1.1), spec[4])
+        for spec in panel_specs
     ]
     for panel_idx, (title_value, subtitle, value_fn, marker_fn, max_value, suffix) in enumerate(panels):
         x0 = 55 + panel_idx * 515
@@ -335,8 +349,8 @@ def cost_latency(guard: dict[str, Any]) -> None:
     body += [
         rect(70, 835, 1460, 85, fill=TAN, radius=16),
         text(100, 870, "Interpretation:", size=18, weight=700, fill=ORANGE_DARK),
-        text(235, 870, "Full Pipeline appears fastest at p95 because it blocks 93.3% of benign cases before the target model.", size=18, weight=600),
-        text(235, 900, "Lower latency here is partly a side effect of overblocking—not evidence of a universally cheaper useful system.", size=17, fill=MUTED),
+        text(235, 870, "Compare guard-refusal, deterministic legacy, and target-model paths before interpreting end-to-end latency.", size=18, weight=600),
+        text(235, 900, "Early blocking can reduce latency, while allowed prompts include both guard and target inference.", size=17, fill=MUTED),
     ]
     write_svg("latency-compute.svg", 1600, 970, body, "Latency and computational cost")
 
@@ -351,7 +365,7 @@ def rainbow_archive(rainbow: dict[str, Any]) -> None:
     transformations = archive["dimensions"]["transformation"]
     body: list[str] = [
         text(70, 70, "Rainbow-Lite: explored diversity, no successful breach", size=38, weight=700),
-        text(70, 105, "Full Pipeline · 4 static seeds + 8 adaptive mutations", size=18, fill=MUTED),
+        text(70, 105, f"Full Pipeline · 4 static seeds + {rainbow['iterations']} adaptive mutations", size=18, fill=MUTED),
         rect(60, 145, 1040, 610, fill=WHITE, stroke=GRID, stroke_width=2, radius=22),
     ]
     grid_x, grid_y, cell_w, cell_h = 270, 235, 195, 105
@@ -367,7 +381,7 @@ def rainbow_archive(rainbow: dict[str, Any]) -> None:
                 body += [
                     rect(x, y, cell_w - 12, cell_h - 12, fill=PANEL, stroke=GRID, stroke_width=2, radius=12),
                     text(x + 90, y + 43, "not tested", size=15, fill=MUTED, anchor="middle"),
-                    text(x + 90, y + 67, "within k = 8", size=13, fill=MUTED, anchor="middle"),
+                    text(x + 90, y + 67, f"within k = {rainbow['iterations']}", size=13, fill=MUTED, anchor="middle"),
                 ]
             else:
                 is_seed = cell["source"] == "seed"
@@ -386,26 +400,26 @@ def rainbow_archive(rainbow: dict[str, Any]) -> None:
     body += [
         rect(1140, 145, 400, 610, fill=PANEL, stroke=GRID, stroke_width=2, radius=22),
         text(1180, 195, "ARCHIVE SUMMARY", size=16, weight=700, fill=ORANGE_DARK, letter_spacing=1.2),
-        text(1180, 265, "75%", size=46, weight=700),
+        text(1180, 265, f"{archive['coverage'] * 100:.0f}%", size=46, weight=700),
         text(1300, 258, "coverage", size=20, weight=700),
-        text(1180, 300, "12 of 16 cells occupied", size=17, fill=MUTED),
+        text(1180, 300, f"{archive['occupied']} of {archive['capacity']} cells occupied", size=17, fill=MUTED),
         line(1180, 335, 1500, 335),
-        text(1180, 395, "0%", size=46, weight=700),
+        text(1180, 395, f"{rainbow['comparison']['adaptive_candidate_asr']:.0f}%", size=46, weight=700),
         text(1300, 388, "adaptive ASR", size=20, weight=700),
-        text(1180, 430, "0 of 8 mutations breached", size=17, fill=MUTED),
+        text(1180, 430, f"{sum(bool(event.get('breach')) for event in rainbow['events'] if event.get('iteration', 0) > 0)} of {rainbow['iterations']} mutations breached", size=17, fill=MUTED),
         line(1180, 465, 1500, 465),
-        text(1180, 525, "0", size=46, weight=700),
+        text(1180, 525, archive["successful_cells"], size=46, weight=700),
         text(1230, 518, "successful cells", size=20, weight=700),
-        text(1180, 560, "Seeds also had 0% ASR", size=17, fill=MUTED),
+        text(1180, 560, f"Seed ASR: {rainbow['comparison']['static_seed_asr']:.0f}%", size=17, fill=MUTED),
         rect(1170, 610, 340, 105, fill=TAN, radius=14),
         text(1195, 645, "Important:", size=17, weight=700, fill=ORANGE_DARK),
-        text(1195, 674, "Obfuscated cells were not", size=16, weight=600),
-        text(1195, 698, "reached within eight iterations.", size=16, weight=600),
+        text(1195, 674, "Coverage measures explored cells;", size=16, weight=600),
+        text(1195, 698, "it does not imply general robustness.", size=16, weight=600),
     ]
     write_svg("rainbow-lite.svg", 1600, 820, body, "Rainbow-Lite archive")
 
 
-def gallery() -> None:
+def gallery(guard: dict[str, Any], rainbow: dict[str, Any]) -> None:
     cards = [
         ("security-utility.svg", "Security–utility trade-off"),
         ("category-heatmaps.svg", "Category-level behavior"),
@@ -433,7 +447,7 @@ def gallery() -> None:
 </head>
 <body>
   <h1>Promptbreak evaluation</h1>
-  <p>450 static observations plus an eight-iteration Rainbow-Lite run.</p>
+  <p>{guard['dataset']['case_count'] * len(guard['configurations']) * guard['repeats']} static observations plus a {rainbow['iterations']}-iteration Rainbow-Lite run.</p>
   {markup}
 </body>
 </html>
@@ -442,14 +456,21 @@ def gallery() -> None:
 
 
 def main() -> None:
-    guard = json.loads(GUARD_REPORT.read_text(encoding="utf-8"))
-    rainbow = json.loads(RAINBOW_REPORT.read_text(encoding="utf-8"))
+    global OUT
+    parser = argparse.ArgumentParser(description="Render Promptbreak result JSONs as SVG")
+    parser.add_argument("--guard-report", type=Path, default=GUARD_REPORT)
+    parser.add_argument("--rainbow-report", type=Path, default=RAINBOW_REPORT)
+    parser.add_argument("--output-dir", type=Path, default=OUT)
+    args = parser.parse_args()
+    guard = json.loads(args.guard_report.read_text(encoding="utf-8"))
+    rainbow = json.loads(args.rainbow_report.read_text(encoding="utf-8"))
+    OUT = args.output_dir
     OUT.mkdir(parents=True, exist_ok=True)
     security_utility(guard)
     category_heatmaps(guard)
     cost_latency(guard)
     rainbow_archive(rainbow)
-    gallery()
+    gallery(guard, rainbow)
     print(f"Wrote visualizations to {OUT}")
 
 

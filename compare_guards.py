@@ -61,6 +61,7 @@ def load_dataset(path: Path = DEFAULT_DATASET) -> Dict[str, Any]:
     if not isinstance(cases, list) or not cases:
         raise ValueError("Dataset enthält keine Fälle")
     ids = set()
+    source_labels = set(payload.get("provenance", {}).get("labels", {}))
     for case in cases:
         missing = {"id", "kind", "category", "level", "prompt", "history"} - set(case)
         if missing:
@@ -74,6 +75,8 @@ def load_dataset(path: Path = DEFAULT_DATASET) -> Dict[str, Any]:
             raise ValueError(f"Unbekanntes Level in {case['id']}")
         if not isinstance(case["history"], list):
             raise ValueError(f"history muss eine Liste sein: {case['id']}")
+        if source_labels and case.get("source") not in source_labels:
+            raise ValueError(f"Unbekanntes Quellenlabel in {case['id']}: {case.get('source')}")
     return payload
 
 
@@ -94,6 +97,41 @@ def safe_mean(values: Iterable[float]) -> float:
     return round(statistics.fmean(collected), 1) if collected else 0.0
 
 
+def summarize_path_latency(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    groups: Dict[str, List[Dict[str, Any]]] = {
+        "guard_refusal": [],
+        "deterministic_legacy": [],
+        "target_model": [],
+    }
+    path_by_source = {
+        "GUARD REFUSAL": "guard_refusal",
+        "LEGACY PATH": "deterministic_legacy",
+        "OLLAMA": "target_model",
+    }
+    for row in rows:
+        path = path_by_source.get(row.get("trace", {}).get("response_source"))
+        if path:
+            groups[path].append(row)
+
+    return {
+        path: {
+            "cases": len(path_rows),
+            "mean_end_to_end_ms": safe_mean(row["latency_ms"] for row in path_rows),
+            "mean_guard_ms": safe_mean(
+                row.get("timing", {}).get("guard_ms", 0.0) for row in path_rows
+            ),
+            "mean_target_or_application_ms": safe_mean(
+                row.get("timing", {}).get("target_or_application_ms", 0.0)
+                for row in path_rows
+            ),
+            "mean_output_filter_ms": safe_mean(
+                row.get("timing", {}).get("output_filter_ms", 0.0) for row in path_rows
+            ),
+        }
+        for path, path_rows in groups.items()
+    }
+
+
 def summarize_rows(
     rows: List[Dict[str, Any]],
     *,
@@ -109,6 +147,22 @@ def summarize_rows(
     precision = safe_ratio(tp, tp + fp)
     recall = safe_ratio(tp, tp + fn)
     f1 = safe_ratio(2 * precision * recall, precision + recall)
+    input_blocked = lambda row: row.get("trace", {}).get("input_guard") == "BLOCKED"
+    input_tp = sum(input_blocked(row) for row in attacks)
+    input_fn = len(attacks) - input_tp
+    input_fp = sum(input_blocked(row) for row in benign)
+    input_tn = len(benign) - input_fp
+    input_precision = safe_ratio(input_tp, input_tp + input_fp)
+    input_recall = safe_ratio(input_tp, input_tp + input_fn)
+    input_f1 = safe_ratio(
+        2 * input_precision * input_recall,
+        input_precision + input_recall,
+    )
+    output_caught = lambda row: bool(row.get("model_leak_caught")) or str(
+        row.get("trace", {}).get("output_filter", "")
+    ).startswith("BLOCKED")
+    attack_output_catches = sum(output_caught(row) for row in attacks)
+    benign_output_catches = sum(output_caught(row) for row in benign)
     warm_rows = [row for row in rows if row["repetition"] > 1] or rows
     total_prompt_tokens = sum(int(row["usage"]["prompt_tokens"]) for row in rows)
     total_completion_tokens = sum(int(row["usage"]["completion_tokens"]) for row in rows)
@@ -127,10 +181,36 @@ def summarize_rows(
         ),
         "attack_block_rate": round(recall * 100, 1),
         "false_positive_rate": round(safe_ratio(fp, len(benign)) * 100, 1),
+        "end_to_end_benign_block_rate": round(safe_ratio(fp, len(benign)) * 100, 1),
         "precision": round(precision, 3),
         "recall": round(recall, 3),
         "f1": round(f1, 3),
         "confusion_matrix": {"tp": tp, "fp": fp, "tn": tn, "fn": fn},
+        "input_guard": {
+            "attack_block_rate": round(safe_ratio(input_tp, len(attacks)) * 100, 1),
+            "false_positive_rate": round(safe_ratio(input_fp, len(benign)) * 100, 1),
+            "precision": round(input_precision, 3),
+            "recall": round(input_recall, 3),
+            "f1": round(input_f1, 3),
+            "confusion_matrix": {
+                "tp": input_tp,
+                "fp": input_fp,
+                "tn": input_tn,
+                "fn": input_fn,
+            },
+        },
+        "output_filter": {
+            "attack_leaks_caught": attack_output_catches,
+            "benign_leaks_caught": benign_output_catches,
+            "attack_leak_catch_rate": round(
+                safe_ratio(attack_output_catches, len(attacks)) * 100,
+                1,
+            ),
+            "benign_leak_catch_rate": round(
+                safe_ratio(benign_output_catches, len(benign)) * 100,
+                1,
+            ),
+        },
         "latency_ms": {
             "mean_all": safe_mean(row["latency_ms"] for row in rows),
             "mean_attack": safe_mean(row["latency_ms"] for row in attacks),
@@ -141,6 +221,7 @@ def summarize_rows(
                 sum(float(row["usage"]["load_duration_ms"]) for row in rows),
                 1,
             ),
+            "by_response_path": summarize_path_latency(rows),
         },
         "compute": {
             "model_calls_total": sum(int(row["usage"]["model_calls"]) for row in rows),
@@ -231,12 +312,15 @@ def run_comparison(
                             "level": case["level"],
                             "blocked": result["blocked"],
                             "breach": result["breach"],
+                            "model_leak_caught": result.get("model_leak_caught", False),
                             "latency_ms": result["latency_ms"],
                             "usage": result["usage"],
+                            "timing": result["timing"],
                             "guard_backend": backend,
                             "guard_model": model_by_backend.get(backend),
                             "guard_label": guard.get("raw_label") or guard.get("category"),
                             "guard_error": guard.get("error"),
+                            "guard_schema_repairs": guard.get("schema_repairs", []),
                             "guard_decisions": result.get("guard_decisions"),
                             "trace": result["trace"],
                         }
@@ -304,6 +388,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-price-per-million", type=float)
     parser.add_argument("--output", type=Path)
     parser.add_argument(
+        "--resummarize",
+        type=Path,
+        help="Recompute summaries in an existing report without calling Ollama.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate the dataset and print the planned matrix without calling Ollama.",
@@ -313,12 +402,37 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if (args.input_price_per_million is None) != (args.output_price_per_million is None):
+        raise SystemExit("Für eine API-Schätzung müssen beide Tokenpreise gesetzt sein")
+    if args.resummarize:
+        report = json.loads(args.resummarize.read_text(encoding="utf-8"))
+        rows = report.get("rows")
+        configurations = report.get("configurations")
+        if not isinstance(rows, list) or not isinstance(configurations, list):
+            raise SystemExit("Der bestehende Report enthält keine gültigen rows/configurations")
+        report["summaries"] = {
+            configuration: summarize_rows(
+                [row for row in rows if row["configuration"] == configuration],
+                input_price_per_million=args.input_price_per_million,
+                output_price_per_million=args.output_price_per_million,
+            )
+            for configuration in configurations
+        }
+        report["summary_schema_version"] = "1.1"
+        report["summary_note"] = (
+            "Schema 1.1 separates input-guard false positives from end-to-end "
+            "benign blocks and caught output leaks. Stored observations are unchanged."
+        )
+        rendered = json.dumps(report, ensure_ascii=False, indent=2)
+        output = args.output or args.resummarize
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered + "\n", encoding="utf-8")
+        print(json.dumps(report["summaries"], ensure_ascii=False, indent=2))
+        return
     if args.repeats < 1:
         raise SystemExit("--repeats muss mindestens 1 sein")
     if not 0 <= args.promptbreak_threshold <= 1:
         raise SystemExit("--promptbreak-threshold muss zwischen 0 und 1 liegen")
-    if (args.input_price_per_million is None) != (args.output_price_per_million is None):
-        raise SystemExit("Für eine API-Schätzung müssen beide Tokenpreise gesetzt sein")
     dataset = load_dataset(args.dataset)
     configurations = args.configurations or list(CONFIGURATIONS)
     if args.dry_run:

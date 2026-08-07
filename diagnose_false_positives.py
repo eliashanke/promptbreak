@@ -90,9 +90,9 @@ def diagnose(
         },
         "rows": rows,
         "scope_note": (
-            "Context and output layers are not re-run here because the full report "
-            "shows all false positives were input-guard refusals and every recorded "
-            "output-filter trace was PASSED."
+            "This report attributes input-guard false positives only. Context and "
+            "output layers are intentionally not re-run; end-to-end benign blocks "
+            "caused by caught model leaks must be interpreted separately."
         ),
     }
 

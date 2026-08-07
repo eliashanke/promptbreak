@@ -45,6 +45,17 @@ MODEL_PROFILES: Dict[str, OllamaModelProfile] = {
         thinking=True,
         note="Recommended modern Chinese comparison model.",
     ),
+    "qwen35_4b": OllamaModelProfile(
+        alias="qwen35_4b",
+        ollama_tag="qwen3.5:4b",
+        family="Qwen 3.5",
+        organization="Alibaba Cloud / Qwen",
+        parameter_class="4B",
+        download_gb=3.4,
+        context_tokens=262_144,
+        thinking=True,
+        note="Memory-efficient attacker-model comparison.",
+    ),
     "qwen3_14b": OllamaModelProfile(
         alias="qwen3_14b",
         ollama_tag="qwen3:14b",
