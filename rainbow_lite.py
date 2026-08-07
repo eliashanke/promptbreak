@@ -19,6 +19,7 @@ from main import (
     add_usage,
     chat_completion_with_usage,
     empty_usage,
+    parse_structured_json,
     run_defense,
 )
 
@@ -174,7 +175,7 @@ def mutate_prompt(
         )
         add_usage(usage, attempt_usage)
         try:
-            parsed = json.loads(raw)
+            parsed = parse_structured_json(raw)
             candidate_value = parsed["prompt"]
             rationale_value = parsed["rationale"]
             objective_preserved = parsed["objective_preserved"]

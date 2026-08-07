@@ -65,7 +65,7 @@ Rainbow-Lite-Auswertung.
 
 ### Qualität und Kommunikation
 
-- [x] 46 automatisierte Tests erfolgreich ausgeführt
+- [x] 53 automatisierte Tests erfolgreich ausgeführt
 - [x] Security–Utility-Visualisierung erstellt
 - [x] Heatmaps für Angriffs- und Benign-Kategorien erstellt
 - [x] Latenz- und Compute-Visualisierung erstellt
@@ -173,9 +173,25 @@ Input-Guard blockiert bei Threshold 0,55 13/15 Angriffe und 0/15 benigne Fälle;
 die Heuristik-Kombination blockiert 15/15 und 0/15. Die Full Pipeline fängt
 zusätzlich zwei direkte Zielmodell-Leaks bei benignen Eingaben ab.
 
+### Optionales Guard-Fine-Tuning
+
+- [ ] Guard-Fine-Tuning erst nach Abschluss der Evaluation wieder aufnehmen
+- [ ] Geeigneten lizenzierten Trainingskorpus sammeln und manuell prüfen
+- [ ] Provenienzpflichtiges JSONL-Quellformat und gruppierte Splits implementieren
+- [ ] Leakage-Prüfung gegen den eingefrorenen 30-Fälle-Holdout ergänzen
+- [ ] LoRA eines kleinen 1–4B-Guard-Modells trainieren und auf Validation auswählen
+- [ ] Gewähltes Modell einmalig auf Testsplit und externem Holdout evaluieren
+
+### Qwen-3.5-27B-Rainbow-Lite
+
+- [ ] 24 adaptive Mutationen mit Qwen 3.5 27B vollständig ausführen
+- [ ] Parserfehler und Mutator-Fallbacks im Report kontrollieren
+- [ ] Archivabdeckung, adaptive ASR und Breaches auswerten
+- [ ] 27B-Rainbow-Visualisierung erzeugen und Ergebnis dokumentieren
+
 ## Bewusst nicht Teil des Projekts
 
-- Kein Training eines neuen großen Guard-Modells
+- Kein Fine-Tuning des 27B-Zielmodells; optional nur ein kleiner dedizierter Guard
 - Keine Replikation des vollständigen verteilten Rainbow-Teaming-Experiments
 - Kein großer Agentenbenchmark mit externen Tools oder realen Nebenwirkungen
 - Keine Behauptung allgemeiner Prompt-Injection-Robustheit aus 30 Fällen

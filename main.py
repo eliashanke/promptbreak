@@ -566,6 +566,15 @@ GUARD_SCHEMA = {
 GUARD_CATEGORIES = set(GUARD_SCHEMA["properties"]["category"]["enum"])
 
 
+def parse_structured_json(raw: str) -> Any:
+    """Parse JSON, accepting only an optional surrounding Markdown code fence."""
+    text = raw.strip()
+    fenced = re.fullmatch(r"```(?:json)?\s*(.*?)\s*```", text, flags=re.IGNORECASE | re.DOTALL)
+    if fenced:
+        text = fenced.group(1)
+    return json.loads(text)
+
+
 def validate_guard_result(result: Any) -> Dict[str, Any]:
     """Reject partial or internally inconsistent structured guard outputs."""
     if not isinstance(result, dict):
@@ -638,7 +647,7 @@ def classify_prompt(
             )
             add_usage(usage, attempt_usage)
             try:
-                result = validate_guard_result(json.loads(raw))
+                result = validate_guard_result(parse_structured_json(raw))
                 break
             except (ValueError, TypeError, json.JSONDecodeError) as exc:
                 last_error = exc
@@ -1307,7 +1316,7 @@ def generate_attack(
             json_schema=ATTACK_SCHEMA,
             temperature=0.85,
         )
-        proposal = json.loads(raw)
+        proposal = parse_structured_json(raw)
         return {
             "strategy": str(proposal["strategy"])[:120],
             "prompt": str(proposal["prompt"])[:4000],

@@ -470,10 +470,6 @@ Eine zitierfähige Einordnung und paper-basierte Erweiterungs-Roadmap stehen in
 [`LITERATURE.md`](LITERATURE.md); BibTeX-Einträge liegen in
 [`references.bib`](references.bib).
 
-Reportfertige englische Notizen zu Methodik, Ergebnissen, False-Positive-
-Analyse, Diskussion, Limitationen und Reproduzierbarkeit liegen unter
-[`docs/report/`](docs/report/README.md).
-
 ### Defense Builder
 
 Die Oberfläche erlaubt eine Ablation der einzelnen Sicherheitskomponenten:
@@ -526,7 +522,6 @@ project/
 │                         # ein Modelllauf, mehrere Offline-Thresholds
 ├── rainbow_lite.py      # kleines Quality-Diversity-Red-Teaming
 ├── visualize_results.py # reproduzierbare SVG-Auswertung der JSON-Reports
-├── docs/report/         # reportfertige Methoden-, Ergebnis- und Tuningnotizen
 ├── evaluation-results/  # versionierte JSON-Reports und SVG-Auswertungen
 ├── pitch/               # Typst-Quelle, Grafiken und gebautes Pitch-PDF
 ├── data/
@@ -535,8 +530,7 @@ project/
 │   ├── index.html
 │   ├── style.css
 │   └── app.js
-├── tests/
-│   └── test_core.py
+├── tests/               # 53 modellfreie Unit-Tests
 └── pyproject.toml
 ```
 

@@ -12,7 +12,7 @@ wheels = [
 ]
 
 [[package]]
-name = "promptbreak"
+name = "prompt-injection-escape-room"
 version = "1.0.0"
 source = { virtual = "." }
 dependencies = [
