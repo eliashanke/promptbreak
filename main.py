@@ -367,7 +367,9 @@ def chat_completion_with_usage(
     payload.update(request_overrides(model))
     if json_schema:
         payload["format"] = json_schema
-    response = ollama_request("/api/chat", payload)
+        payload["options"]["num_predict"] = 256
+    request_timeout = 600 if resolved_model.lower() == "qwen3.5:27b" else 180
+    response = ollama_request("/api/chat", payload, timeout=request_timeout)
     content = response.get("message", {}).get("content", "")
     usage = {
         "model_calls": 1,

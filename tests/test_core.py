@@ -443,9 +443,22 @@ class ExperimentTests(unittest.TestCase):
         self.assertEqual(payload["model"], "qwen3.5:9b")
         self.assertFalse(payload["think"])
 
+    @patch("main.ollama_request")
+    def test_qwen_27b_uses_extended_request_timeout(self, request):
+        request.return_value = {"message": {"content": "ok"}}
+        chat_completion_with_usage(
+            "qwen35_27b",
+            [{"role": "user", "content": "hello"}],
+            json_schema={"type": "object"},
+        )
+        payload = request.call_args.args[1]
+        self.assertEqual(payload["options"]["num_predict"], 256)
+        self.assertEqual(request.call_args.kwargs["timeout"], 600)
+
     def test_chinese_model_aliases_resolve_to_ollama_tags(self):
         self.assertEqual(resolve_model_tag("qwen35_4b"), "qwen3.5:4b")
         self.assertEqual(resolve_model_tag("qwen35_9b"), "qwen3.5:9b")
+        self.assertEqual(resolve_model_tag("qwen35_27b"), "qwen3.5:27b")
         self.assertEqual(resolve_model_tag("deepseek_r1_14b"), "deepseek-r1:14b")
         self.assertEqual(resolve_model_tag("custom/model:tag"), "custom/model:tag")
 
