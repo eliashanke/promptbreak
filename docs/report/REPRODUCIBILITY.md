@@ -22,6 +22,7 @@ Install models:
 
 ```bash
 ollama pull gemma4:latest
+ollama pull qwen3.5:4b
 ollama pull llama-guard3:1b
 ollama pull shieldgemma:2b
 ollama list
@@ -36,6 +37,9 @@ Models used in the recorded run:
 | General guard 1        | `llama-guard3:1b` |
 | General guard 2        | `shieldgemma:2b`  |
 | Rainbow-Lite attacker  | `gemma4:latest`   |
+
+The revised comparison uses `qwen3.5:4b` as an additional Rainbow-Lite attacker;
+the table above describes the historical recorded run.
 
 Recorded hardware and runtime environment:
 
@@ -54,6 +58,7 @@ Ollama model identifiers observed before the run:
 | Model             | Identifier     |
 | ----------------- | -------------- |
 | `gemma4:latest`   | `c6eb396dbd59` |
+| `qwen3.5:4b`      | `2a654d98e6fb` |
 | `llama-guard3:1b` | `494147e06bf9` |
 | `shieldgemma:2b`  | `5aad5044d142` |
 
@@ -63,7 +68,7 @@ Ollama model identifiers observed before the run:
 uv run python -m unittest discover -s tests -v
 ```
 
-Recorded status after guard tuning: 33/33 tests passed.
+Recorded status after the Qwen and Rainbow-Lite revisions: 46/46 tests passed.
 
 ## Validate the static matrix
 
@@ -156,19 +161,22 @@ observations.
 ```bash
 uv run python rainbow_lite.py \
   --target-model gemma4:latest \
-  --attacker-model gemma4:latest \
+  --attacker-model qwen35_4b \
   --configuration full_pipeline \
-  --iterations 8 \
+  --iterations 24 \
   --output evaluation-results/rainbow-lite.json
 ```
 
-Observed runtime: 156,913 ms, or 2.62 minutes.
+The current default evaluates 24 adaptive candidates, giving every non-direct
+archive cell two attempts. The earlier eight-candidate result remains an
+historical artifact and must not be compared as if it used the same search
+budget.
 
 Rainbow-Lite counts seed evaluation, mutation, and candidate evaluation as
-separate progress stages. Eight iterations produce:
+separate progress stages. Twenty-four iterations produce:
 
 ```text
-4 seed stages + (8 × 2 adaptive stages) = 20 progress stages
+4 seed stages + (24 × 2 adaptive stages) = 52 progress stages
 ```
 
 ## Generate visualizations

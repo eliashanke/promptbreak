@@ -111,12 +111,13 @@ No static seed or adaptive mutation breached the Full Pipeline. This is useful
 evidence that the tested mutations did not trivially bypass the layered
 defense.
 
-The experiment remains exploratory:
+The historical eight-mutation run left four cells unvisited. The revised run
+used Qwen 3.5 4B for 24 mutations, visited every non-direct cell twice, and
+reached 100% archive coverage without a breach. It remains exploratory:
 
-- only eight adaptive mutations were tested,
-- four `obfuscated` cells were never visited,
-- the same model family generated attacks and performed Promptbreak
-  classification,
+- only 24 adaptive mutations were tested,
+- Gemma remained both the target and Promptbreak classifier while Qwen
+  generated the mutation templates,
 - only one adaptive run was performed,
 - the archive objective used one local application and deterministic secrets.
 

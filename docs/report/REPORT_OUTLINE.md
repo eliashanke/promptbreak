@@ -224,7 +224,7 @@ Must include:
 - same Gemma model for target and Promptbreak classification,
 - general guards used out of the box,
 - three identical repetitions are not independent evidence,
-- only eight Rainbow-Lite mutations.
+- only 24 Rainbow-Lite mutations from one adaptive run,
 - the tuned guard was developed and validated on the same 30 cases,
 - the tuned end-to-end validation used one repetition.
 

@@ -1,6 +1,6 @@
 # Promptbreak – Projektstatus und TODO
 
-Stand: 30. Juli 2026
+Stand: 7. August 2026
 
 ## Ziel des Projekts
 
@@ -65,7 +65,7 @@ Rainbow-Lite-Auswertung.
 
 ### Qualität und Kommunikation
 
-- [x] 37 automatisierte Tests erfolgreich ausgeführt
+- [x] 46 automatisierte Tests erfolgreich ausgeführt
 - [x] Security–Utility-Visualisierung erstellt
 - [x] Heatmaps für Angriffs- und Benign-Kategorien erstellt
 - [x] Latenz- und Compute-Visualisierung erstellt
@@ -93,18 +93,18 @@ Drei-Wiederholungs-Lauf und ein ungesehener Holdout bleiben notwendig.
 
 ### 2. Benchmark und Quellen einfrieren
 
-- [ ] Für jeden Benchmarkfall Quelle oder Kennzeichnung „Promptbreak-spezifisch“ dokumentieren
-- [ ] Übernommene Fälle und eigene Anpassungen nachvollziehbar kennzeichnen
-- [ ] Open Prompt Injection, NotInject/InjecGuard und XSTest sauber zuordnen
-- [ ] Erwartetes Verhalten jedes Falls noch einmal manuell prüfen
-- [ ] Datensatzversion nach der Prüfung erhöhen und anschließend nicht mehr verändern
+- [x] Für jeden Benchmarkfall Quelle oder Kennzeichnung „Promptbreak-spezifisch“ dokumentieren
+- [x] Übernommene Fälle und eigene Anpassungen nachvollziehbar kennzeichnen
+- [x] Open Prompt Injection, NotInject/InjecGuard und XSTest sauber zuordnen
+- [x] Erwartetes Verhalten jedes Falls noch einmal manuell prüfen
+- [x] Datensatz nach der Prüfung als Version 1.1 einfrieren
 
 Ziel: Ein kleiner, aber nachvollziehbarer und zitierbarer Benchmark.
 
 ### 3. Finale Evaluation nach Guard-Verbesserung wiederholen
 
 - [x] Tests nach jeder Guard-Änderung ausführen
-- [ ] Kurzen Smoke Test vor dem langen Lauf ausführen
+- [x] Kurzen Smoke Test vor dem langen Lauf ausführen
 - [ ] Vollständigen 30 × 5 × 3 Benchmark erneut ausführen
 - [ ] Alten und neuen Promptbreak Guard direkt vergleichen
 - [ ] Prüfen, ob die drei Wiederholungen weiterhin stabil sind
@@ -114,11 +114,11 @@ Ziel: Belegen, ob die Änderungen tatsächlich den Security–Utility-Trade-off 
 
 ### 4. Latenzauswertung methodisch bereinigen
 
-- [ ] Guard-only-Latenz und End-to-End-Latenz getrennt berichten
-- [ ] Blockierte, deterministische und echte Zielmodellpfade getrennt auswerten
-- [ ] Erklären, warum Prompt only teilweise 0 ms und die Full Pipeline einen niedrigen p95-Wert erreicht
-- [ ] Hardware, Ollama-Version, Modellversionen und Warm-up-Protokoll dokumentieren
-- [ ] Entscheiden, ob Mean zusätzlich zu p50 und p95 im finalen Bericht benötigt wird
+- [x] Guard-only-Latenz und End-to-End-Latenz getrennt erfassen
+- [x] Blockierte, deterministische und echte Zielmodellpfade getrennt auswerten
+- [x] Erklären, warum Prompt only teilweise 0 ms und die Full Pipeline einen niedrigen p95-Wert erreicht
+- [x] Hardware, Ollama-Version, Modellversionen und Warm-up-Protokoll dokumentieren
+- [x] Mean zusätzlich zu p50 und p95 berichten
 
 Ziel: Verhindern, dass frühes Overblocking fälschlich als Performance-Vorteil interpretiert wird.
 
@@ -137,8 +137,8 @@ Ziel: Verhindern, dass frühes Overblocking fälschlich als Performance-Vorteil 
 
 ### Rainbow-Lite erweitern
 
-- [ ] Rainbow-Lite mit 12 statt 8 Mutationen ausführen
-- [ ] Dadurch alle vier Obfuscated-Zellen mindestens einmal untersuchen
+- [x] Rainbow-Lite mit 24 statt 8 Mutationen ausführen
+- [x] Jede nicht-direkte Archivzelle mindestens zweimal untersuchen
 - [ ] Optional zwei oder drei unabhängige Rainbow-Lite-Seeds vergleichen
 - [ ] Nur behaupten, was tatsächlich getestet wurde; keine allgemeine Robustheit ableiten
 
@@ -152,11 +152,26 @@ Ziel: Verhindern, dass frühes Overblocking fälschlich als Performance-Vorteil 
 ### Demo und Reproduzierbarkeit
 
 - [ ] Einen kurzen Demoablauf mit einem erfolgreichen Angriff und einem False Positive vorbereiten
-- [ ] Einen festen Befehl für den Smoke Test dokumentieren
-- [ ] Einen festen Befehl für den vollständigen Benchmark dokumentieren
-- [ ] Einen festen Befehl für Rainbow-Lite dokumentieren
-- [ ] Visualisierungen mit einem einzigen Befehl reproduzierbar machen
-- [ ] Finale Ergebnisdateien und Modellnamen im README verlinken
+- [x] Einen festen Befehl für den Smoke Test dokumentieren
+- [x] Einen festen Befehl für den vollständigen Benchmark dokumentieren
+- [x] Einen festen Befehl für Rainbow-Lite dokumentieren
+- [x] Visualisierungen mit einem einzigen Befehl reproduzierbar machen
+- [x] Datierte Qwen-Ergebnisdateien und Modellnamen im README verlinken
+
+### Qwen-3.5-4B-Zusatzlauf
+
+- [x] Qwen als Rainbow-Lite-Angreifer mit technischem Smoke Test prüfen
+- [x] Qwen-Sicherheitsverweigerungen durch zielerhaltende Templates behandeln
+- [x] 24 adaptive Mutationen und alle 16 Archivzellen auswerten
+- [x] Vollständigen 30 × 5 × 1 Qwen-Pass mit 150 Beobachtungen ausführen
+- [x] Qwen-Threshold-Sweep über alle 30 Fälle ausführen
+- [x] Input-False-Positives von abgefangenen Output-Leaks trennen
+- [x] Datierte, parameterisierte Qwen-Visualisierungen erzeugen
+
+Ergebnis: 100 % Rainbow-Archivabdeckung ohne Full-Pipeline-Breach. Der Qwen-
+Input-Guard blockiert bei Threshold 0,55 13/15 Angriffe und 0/15 benigne Fälle;
+die Heuristik-Kombination blockiert 15/15 und 0/15. Die Full Pipeline fängt
+zusätzlich zwei direkte Zielmodell-Leaks bei benignen Eingaben ab.
 
 ## Bewusst nicht Teil des Projekts
 
@@ -170,10 +185,10 @@ Ziel: Verhindern, dass frühes Overblocking fälschlich als Performance-Vorteil 
 
 Das Projekt ist für die Abgabe ausreichend abgeschlossen, wenn:
 
-- [ ] der 30-Fälle-Benchmark mit Quellen und Anpassungen eingefroren ist,
-- [ ] die False Positives des Promptbreak Guards analysiert und nach Möglichkeit reduziert wurden,
+- [x] der 30-Fälle-Benchmark mit Quellen und Anpassungen eingefroren ist,
+- [x] die False Positives des Promptbreak Guards analysiert und nach Möglichkeit reduziert wurden,
 - [ ] ein finaler vollständiger Vergleichslauf vorliegt,
-- [ ] Security, Utility, Latenz und Compute-Kosten nachvollziehbar berichtet werden,
-- [ ] Rainbow-Lite klar als kleine adaptive Zusatzanalyse eingeordnet wird,
+- [x] Security, Utility, Latenz und Compute-Kosten nachvollziehbar berichtet werden,
+- [x] Rainbow-Lite klar als kleine adaptive Zusatzanalyse eingeordnet wird,
 - [ ] Pitch, Bericht, README und Ergebnisdateien dieselben finalen Zahlen verwenden,
-- [ ] alle automatisierten Tests erfolgreich laufen.
+- [x] alle automatisierten Tests erfolgreich laufen.

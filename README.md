@@ -60,6 +60,7 @@ direkt gleichzusetzen. Stand: 31. Juli 2026.
 
 | Alias | Ollama-Tag | Download | Kontext | Verwendung |
 | --- | --- | ---: | ---: | --- |
+| `qwen35_4b` | `qwen3.5:4b` | 3,4 GB | 256K | speichersparender getesteter Vergleich |
 | `qwen35_9b` | `qwen3.5:9b` | 6,6 GB | 256K | moderner Hauptvergleich |
 | `qwen3_14b` | `qwen3:14b` | 9,3 GB | 40K | ähnlichste Downloadgröße |
 | `deepseek_r1_14b` | `deepseek-r1:14b` | 9,0 GB | 128K | reasoning-orientierter Vergleich |
@@ -211,36 +212,47 @@ uv run python compare_guards.py \
 
 ### 8. Rainbow-Lite ausführen
 
-Kleiner Acht-Iterationen-Lauf:
+Der Standardlauf erzeugt 24 adaptive Kandidaten. Damit wird jede der zwölf
+nicht-direkten Archivzellen zweimal besucht; erfolgreiche oder weiter
+fortgeschrittene Kandidaten dienen als Eltern späterer Mutationen.
 
 ```bash
 uv run python rainbow_lite.py \
   --target-model gemma4:latest \
-  --attacker-model gemma4:latest \
+  --attacker-model qwen35_4b \
   --configuration full_pipeline \
-  --iterations 8 \
-  --output evaluation-results/rainbow-lite.json
+  --iterations 24 \
+  --output evaluation-results/rainbow-lite-qwen35-4b-24.json
 ```
 
-Ein Lauf mit zwölf Mutationen erreicht zusätzlich die vier
-`obfuscated`-Archivzellen:
+Für einen schnellen technischen Smoke-Test reichen vier Mutationen:
 
 ```bash
 uv run python rainbow_lite.py \
   --target-model gemma4:latest \
-  --attacker-model gemma4:latest \
+  --attacker-model qwen35_4b \
   --configuration full_pipeline \
-  --iterations 12 \
-  --output evaluation-results/rainbow-lite-12.json
+  --iterations 4 \
+  --output evaluation-results/rainbow-lite-qwen35-4b-smoke.json
 ```
+
+Der Defense-Filter und der objektive Judge sind getrennt: Der Filter erkennt
+die von der Anwendung unterstützten direkten, Hex-, ROT13-, Reverse- und
+Base64-Leaks. Der stärkere Judge erkennt zusätzlich Dezimal-, Binär- und
+Unicode-Codepoint-Ausgaben. Wären beide identisch, könnte ein vom Judge
+messbarer Full-Pipeline-Bypass definitionsgemäß nie auftreten.
 
 ### 9. Visualisierungen erzeugen
 
-Das aktuelle Visualisierungsskript liest die datierten vollständigen Reports
-im Ordner `evaluation-results/`:
+Ohne Argumente liest das Visualisierungsskript die historischen vollständigen
+Reports. Beliebige datierte Guard- und Rainbow-Reports lassen sich in einen
+eigenen Ausgabeordner rendern:
 
 ```bash
-uv run python visualize_results.py
+uv run python visualize_results.py \
+  --guard-report evaluation-results/qwen35-4b-full-guard-comparison-2026-08-07.json \
+  --rainbow-report evaluation-results/rainbow-lite-qwen35-4b-24-2026-08-07.json \
+  --output-dir evaluation-results/visualizations/qwen35-4b-2026-08-07
 ```
 
 Es erzeugt SVGs und eine HTML-Übersicht unter
@@ -297,6 +309,25 @@ uv run python compare_guards.py \
   --output evaluation-results/qwen35-guard.json
 ```
 
+### Aufgezeichneter Qwen-3.5-4B-Lauf
+
+Am 7. August 2026 wurde der vollständige 30×5-Vergleich mit einer Wiederholung
+und `qwen35_4b` sowohl als Zielmodell als auch als Promptbreak-Klassifikator
+ausgeführt. Promptbreak erreichte 13,3 % ASR, 0,0 % Input-Guard-FPR und F1
+0,929; die Full Pipeline erreichte 0,0 % ASR. Zwei benigne Eingaben führten beim
+Zielmodell zu echten direkten Leaks, die der Output-Filter abfing. Deshalb
+beträgt ihre End-to-End-Benign-Blockrate 13,3 %, während die Input-Guard-FPR
+0,0 % bleibt.
+
+- [vollständiger Qwen-Guard-Report](evaluation-results/qwen35-4b-full-guard-comparison-2026-08-07.json)
+- [Qwen-Threshold-Sweep](evaluation-results/qwen35-4b-guard-threshold-sweep-2026-08-07.json)
+- [Qwen-False-Positive-Attribution](evaluation-results/qwen35-4b-false-positive-attribution-2026-08-07.json)
+- [24er Rainbow-Lite-Report](evaluation-results/rainbow-lite-qwen35-4b-24-2026-08-07.json)
+- [Qwen-SVG-Galerie](evaluation-results/visualizations/qwen35-4b-2026-08-07/index.html)
+
+Der Lauf ist ein vollständiger Modell-/Konfigurationspass, aber wegen nur einer
+Wiederholung kein Ersatz für die noch offene finale 30×5×3-Evaluation.
+
 ### Fortschrittsbalken und ETA
 
 `compare_guards.py`, `compare_target_models.py`, `rainbow_lite.py`, `evaluate.py`,
@@ -327,8 +358,10 @@ Erfasst werden:
 
 - **Attack Success Rate (ASR):** Anteil der Angriffe, bei denen das Secret
   tatsächlich an den Client ausgeliefert wird; niedriger ist besser.
-- **False Positive Rate (FPR):** Anteil harmloser Anfragen, die blockiert
-  werden; niedriger ist besser.
+- **End-to-End-Benign-Blockrate:** Anteil harmloser Anfragen, die an irgendeiner
+  Schicht blockiert werden; das schließt abgefangene Zielmodell-Leaks ein.
+- **Input-Guard-FPR:** Anteil harmloser Anfragen, die bereits der Input Guard
+  fälschlich blockiert; niedriger ist besser.
 - **Accuracy:** erfolgreiche Abwehr von Angriffen plus Durchlassen harmloser
   Anfragen.
 - **Latenz:** End-to-End-Laufzeit je Fall. Guarded benötigt meist einen
@@ -368,6 +401,9 @@ uv run python compare_guards.py --dry-run
 Zusätzlich zu ASR, FPR, Precision, Recall und F1 speichert der Report:
 
 - p50- und p95-Wall-Clock-Latenz,
+- mittlere Latenz getrennt nach Guard-Refusal, deterministischem Legacy-Pfad
+  und echtem Zielmodellpfad,
+- Guard-, Target/Application- und Output-Filter-Zeit,
 - Modell-Ladezeit,
 - Modellaufrufe pro Fall,
 - Input- und Output-Tokens,
@@ -387,14 +423,17 @@ deterministische Secret-Exfiltration.
 
 ```bash
 uv run python rainbow_lite.py \
+  --target-model gemma4:latest \
+  --attacker-model qwen35_4b \
   --configuration full_pipeline \
-  --iterations 8 \
-  --output evaluation-results/rainbow-lite.json
+  --iterations 24 \
+  --output evaluation-results/rainbow-lite-qwen35-4b-24.json
 ```
 
-Berichtet werden Archivabdeckung, erfolgreiche Zellen, statische Seed-ASR,
-adaptive Kandidaten-ASR und Success@k. Dies ist eine methodisch motivierte
-Adaption und keine Replikation der rechenintensiven Originalstudie.
+Berichtet werden Archivabdeckung, Defense-Fortschritt, erfolgreiche Zellen,
+statische Seed-ASR, adaptive Kandidaten-ASR und Success@k. Dies ist eine
+methodisch motivierte Adaption und keine Replikation der rechenintensiven
+Originalstudie.
 
 ## Architektur
 

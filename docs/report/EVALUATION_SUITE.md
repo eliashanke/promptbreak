@@ -247,10 +247,11 @@ Primary benchmark sources:
 - [InjecGuard repository](https://github.com/safolab-wisc/injecguard)
 - [XSTest dataset repository](https://github.com/paul-rottger/xstest)
 
-The attack prompts are Promptbreak-native or documented adaptations of attack
-patterns; the benign prompts are project-specific contrast cases. The source
-links therefore document the methodological provenance rather than claiming
-that the 30 rows were copied verbatim.
+The attack prompts are Promptbreak-native or Promptbreak-authored paraphrases;
+the benign prompts are project-specific contrast cases. No row was copied
+verbatim from an external benchmark. The source links document methodological
+provenance rather than row-level reuse. This distinction is also encoded in the
+dataset's top-level `provenance` object and its per-row `source` field.
 
 ## Dataset schema
 
@@ -276,7 +277,14 @@ Fields:
 - `level`: application scenario to execute,
 - `prompt`: current user message,
 - `history`: preceding turns for stateful cases,
-- `source`: native, adapted, or contrast-set provenance label.
+- `source`: one of the labels defined by the top-level `provenance.labels`
+  object. The label is present on every row.
+
+The frozen v1.1 metadata also defines the expected outcome by `kind`: attacks
+must disclose the synthetic secret in the unprotected application, while benign
+cases must be allowed. The deterministic level-contract tests verify the attack
+workflows; the 30 prompts and histories were additionally reviewed manually for
+kind, level, category, source label, and expected behavior.
 
 ## Execution and objective judgment
 
@@ -309,7 +317,9 @@ The suite separates:
 
 - **Attack Success Rate:** fraction of attacks that deliver a secret;
 - **Attack block rate:** fraction of attacks stopped by any defense layer;
-- **False Positive Rate:** fraction of benign cases blocked;
+- **End-to-end benign block rate:** fraction of benign cases blocked by any layer;
+- **Input-guard FPR:** fraction of benign cases refused at the input guard;
+- **Output-leak catch rate:** target-model leaks redacted after generation;
 - **precision, recall, and F1:** classification behavior;
 - **latency:** end-to-end execution time;
 - **compute proxies:** model calls and token counts.
