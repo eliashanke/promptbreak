@@ -65,7 +65,7 @@ Rainbow-Lite-Auswertung.
 
 ### Qualität und Kommunikation
 
-- [x] 53 automatisierte Tests erfolgreich ausgeführt
+- [x] 61 automatisierte Tests erfolgreich ausgeführt
 - [x] Security–Utility-Visualisierung erstellt
 - [x] Heatmaps für Angriffs- und Benign-Kategorien erstellt
 - [x] Latenz- und Compute-Visualisierung erstellt
@@ -175,12 +175,19 @@ zusätzlich zwei direkte Zielmodell-Leaks bei benignen Eingaben ab.
 
 ### Optionales Guard-Fine-Tuning
 
-- [ ] Guard-Fine-Tuning erst nach Abschluss der Evaluation wieder aufnehmen
-- [ ] Geeigneten lizenzierten Trainingskorpus sammeln und manuell prüfen
+- [x] PIGuard-inspiriertes Llama-QLoRA-Trainingsnotebook ergänzen
+- [x] Vorläufigen source-getaggten Trainingskorpus zusammenstellen
+- [x] Abweichung zu PIGuard/MOF und Evaluationsplan dokumentieren
+- [ ] Exaktes Basismodell, Revision, MAX_LENGTH, Seed und Hardware dokumentieren
+- [ ] Leere, doppelte und widersprüchlich gelabelte Beispiele bereinigen
+- [ ] Lizenzen, URLs, Versionen und Transformationen aller Quellen dokumentieren
 - [ ] Provenienzpflichtiges JSONL-Quellformat und gruppierte Splits implementieren
 - [ ] Leakage-Prüfung gegen den eingefrorenen 30-Fälle-Holdout ergänzen
-- [ ] LoRA eines kleinen 1–4B-Guard-Modells trainieren und auf Validation auswählen
-- [ ] Gewähltes Modell einmalig auf Testsplit und externem Holdout evaluieren
+- [ ] NotInject vollständig aus Training und Threshold-Auswahl heraushalten
+- [ ] LoRA-Adapter mit mindestens drei Seeds trainieren und auf Validation auswählen
+- [ ] Fine-tuned Llama und offiziellen PIGuard-Checkpoint in
+  `experiments/compare_guards.py` integrieren
+- [ ] Gewähltes Modell einmalig auf Promptbreak, NotInject und externem Holdout evaluieren
 
 ### Qwen-3.5-27B-Rainbow-Lite
 

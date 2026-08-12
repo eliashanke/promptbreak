@@ -1,15 +1,25 @@
 [project]
-name = "prompt-injection-escape-room"
+name = "promptbreak"
 version = "1.0.0"
 description = "A local red-team game comparing prompt-injection defenses with Ollama"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "tqdm>=4.66,<5",
 ]
 
-[project.scripts]
-promptbreak = "main:main"
-
 [tool.uv]
 package = false
+
+[dependency-groups]
+finetuning = [
+    "accelerate>=1.14.0",
+    "bitsandbytes>=0.50.0",
+    "datasets>=5.0.1",
+    "ipykernel>=7.3.0",
+    "numpy>=2.2.6",
+    "peft>=0.18.0",
+    "scikit-learn>=1.7.2",
+    "torch>=2.4",
+    "transformers==5.13.1",
+]

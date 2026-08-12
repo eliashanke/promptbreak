@@ -27,6 +27,7 @@
     "Model snapshot": ["Model snapshot", "A descriptive comparison of different runs. Models, repetition counts, and dates differ, so this table is not a paired significance test."],
     "API cost estimate": ["API cost estimate", "A counterfactual calculation from recorded input/output tokens and the selected pricing profile. The actual runs used Ollama and incurred $0 in API fees. A mixed-model provider bill may differ."],
     "Rainbow-Lite archive": ["Rainbow-Lite archive", "A small quality-diversity archive with four attack families × four transformations. An occupied cell contains a tested candidate; a dark cell was not reached by the search. Red would mark a successful breach."],
+    "Guard training diagnostics": ["Guard training diagnostics", "Training and validation metrics recorded by the QLoRA notebook. The current split is random and may contain related or duplicated prompts across partitions, so these curves are diagnostics rather than final generalization evidence."],
   };
 
   const infoButton = (key, label) => `<button class="info-button" type="button" data-info="${key}" aria-label="Explain ${label}">i</button>`;
@@ -152,6 +153,54 @@
     }).join("");
   }
 
+  function lineChart(series, yMax, yFormatter) {
+    const width = 1000, height = 250, left = 58, right = 18, top = 18, bottom = 38;
+    const all = series.flatMap((item) => item.points);
+    const minStep = Math.min(...all.map((point) => point.step));
+    const maxStep = Math.max(...all.map((point) => point.step));
+    const x = (step) => left + (step - minStep) / Math.max(maxStep - minStep, 1) * (width - left - right);
+    const y = (value) => top + (1 - Math.max(0, Math.min(value / yMax, 1))) * (height - top - bottom);
+    const yTicks = [0, .25, .5, .75, 1].map((ratio) => {
+      const value = ratio * yMax;
+      const yPos = y(value);
+      return `<line class="chart-grid" x1="${left}" y1="${yPos}" x2="${width - right}" y2="${yPos}"/><text class="chart-label" x="${left - 10}" y="${yPos + 4}" text-anchor="end">${yFormatter(value)}</text>`;
+    }).join("");
+    const xTicks = [0, .25, .5, .75, 1].map((ratio) => {
+      const step = Math.round(minStep + ratio * (maxStep - minStep));
+      const xPos = x(step);
+      return `<line class="chart-tick" x1="${xPos}" y1="${height - bottom}" x2="${xPos}" y2="${height - bottom + 5}"/><text class="chart-label" x="${xPos}" y="${height - 14}" text-anchor="middle">${step}</text>`;
+    }).join("");
+    const paths = series.map((item) => {
+      const points = item.points.map((point) => `${x(point.step).toFixed(1)},${y(point.value).toFixed(1)}`).join(" ");
+      return `<polyline class="chart-line ${item.className}" points="${points}"/>`;
+    }).join("");
+    const legend = series.map((item) => `<span class="chart-legend ${item.className}">${item.label}</span>`).join("");
+    return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${series.map((item) => item.label).join(", ")} by training step">${yTicks}${xTicks}${paths}<text class="chart-axis-title" x="${width - right}" y="${height - 14}" text-anchor="end">STEP</text></svg><div class="chart-legend-row">${legend}</div>`;
+  }
+
+  function renderTraining() {
+    const training = data.training;
+    const best = training.best;
+    const latest = training.latest;
+    $("#training-summary").innerHTML = `
+      <div><small>BEST VALIDATION F1</small><strong>${best.f1.toFixed(3)}</strong><span>STEP ${best.step}</span></div>
+      <div><small>BEST ACCURACY</small><strong>${pct(best.accuracy * 100)}</strong><span>RANDOM 90/10 SPLIT</span></div>
+      <div><small>LATEST PRECISION</small><strong>${pct(latest.precision * 100)}</strong><span>STEP ${latest.step}</span></div>
+      <div><small>LATEST RECALL</small><strong>${pct(latest.recall * 100)}</strong><span>STEP ${latest.step}</span></div>`;
+    $("#training-quality-chart").innerHTML = lineChart([
+      { label: "F1", className: "f1", points: training.evaluations.map((point) => ({ step: point.step, value: point.f1 })) },
+      { label: "PRECISION", className: "precision", points: training.evaluations.map((point) => ({ step: point.step, value: point.precision })) },
+      { label: "RECALL", className: "recall", points: training.evaluations.map((point) => ({ step: point.step, value: point.recall })) },
+    ], 1, (value) => value.toFixed(2));
+    const maxLoss = Math.max(...training.training.map((point) => point.loss), ...training.evaluations.map((point) => point.loss));
+    $("#training-loss-chart").innerHTML = lineChart([
+      { label: "TRAIN", className: "train-loss", points: training.training.map((point) => ({ step: point.step, value: point.loss })) },
+      { label: "EVAL", className: "eval-loss", points: training.evaluations.map((point) => ({ step: point.step, value: point.loss })) },
+    ], Math.ceil(maxLoss), (value) => value.toFixed(1));
+    $("#training-meta").textContent = `${training.adapter.toUpperCase()} · ${training.maxStep} STEPS · EPOCH ${training.epoch.toFixed(3)}`;
+    $("#training-note").textContent = training.note;
+  }
+
   function renderPricing(run) {
     const profile = data.pricingProfiles.find((item) => item.id === selectedPricingId) || data.pricingProfiles[0];
     selectedPricingId = profile.id;
@@ -177,7 +226,7 @@
   }
 
   function renderSources(run) {
-    const sources = [run.source];
+    const sources = [run.source, data.training.source];
     const threshold = data.thresholds.find((item) => item.runId === run.id);
     const attribution = data.attributions.find((item) => item.runId === run.id);
     if (threshold) sources.push(threshold.source);
@@ -228,7 +277,7 @@
   $("#threshold-model").addEventListener("change", (event) => renderThreshold(event.target.value));
   $("#pricing-profile").innerHTML = data.pricingProfiles.map((item) => `<option value="${item.id}">${item.label}</option>`).join("");
   $("#pricing-profile").addEventListener("change", (event) => { selectedPricingId = event.target.value; renderPricing(data.runs.find((item) => item.id === selectedRunId)); });
-  renderModelTable(); renderRainbows(); render();
+  renderModelTable(); renderRainbows(); renderTraining(); render();
 })().catch((error) => {
   console.error("Dashboard initialization failed", error);
   const main = document.querySelector("main");

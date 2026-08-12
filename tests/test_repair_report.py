@@ -1,6 +1,6 @@
 import unittest
 
-from repair_guard_report import repair_report
+from experiments.repair_guard_report import repair_report
 
 
 def row(case_id, error=None, blocked=False):

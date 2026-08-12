@@ -1,118 +1,158 @@
 # Promptbreak – Prompt Injection Escape Room
 
-Ein interaktives Red-Team-Spiel für das NLP in Industry-Seminar. Das lokale Sprachmodell bewacht pro Level ein Secret; Spielende versuchen, es durch Prompt Injection zu extrahieren. Zwei Verteidigungsarchitekturen können direkt verglichen und mit einem eingebauten Testsatz evaluiert werden.
+An interactive red-team game for the NLP in Industry seminar. In each level, a
+local language model protects a secret while players try to extract it through
+prompt injection. Two defense architectures can be compared directly and
+evaluated with a built-in test set.
 
-Alles läuft lokal über [Ollama](https://ollama.com/). Es gibt keine API-Keys, Cloud-Aufrufe oder nutzungsabhängigen Kosten.
+Everything runs locally through [Ollama](https://ollama.com/). No API keys,
+cloud calls, or usage-based costs are required.
 
-## Was der Prototyp kann
+## Prototype features
 
-- drei ansteigende Angriffsszenarien mit getrennten Secrets; Level 1 enthält
-  bewusst eine leicht auffindbare Legacy-QA-Lücke, Level 2 einen enger
-  definierten unsicheren SQL-Exportpfad und Level 3 eine zustandsbehaftete
-  dreistufige Disaster-Recovery-Lücke
-- **Baseline:** nur ein System-Prompt als Schutz
-- **Guarded:** separater LLM-Input-Classifier, heuristische Regeln und
-  deterministischer Output-Filter
-- ein anspruchsvoller Guarded-Bypass in Level 3: Multi-Turn-State, fehlerhafte
-  Legacy-Allowlist und Base64-Exfiltration
-- lokales Chat-UI mit Modellwahl, Hinweisen und getrennten Verläufen
-- integriertes Attack-Playbook mit erklärten Methoden und ladbaren Payloads
-- Defense-Trace pro Antwort und animiertes Breach-Finale
-- **Defense Builder** mit sechs einzeln schaltbaren Layern und fünf Presets
-- **Auto Red-Team Agent**, der Seed-Angriffe ausführt und Fehlschläge mit Ollama
-  analysiert und mutiert
-- **Benchmark-Heatmap** über Prompt-only, Input-Guard, Output-Filter und Full
-  Pipeline mit ASR, False-Positive-Rate und Latenz
-- Live-Metriken für Attack Success Rate, Blocks und Latenz
-- reproduzierbare 30-Fälle-Studie mit 15 Angriffen und 15 harmlosen
-  XSTest-artigen Kontrastfällen
-- lokale Vergleichsadapter für Promptbreak Guard, Llama Guard 3 und ShieldGemma
-- Ollama-Telemetrie für Modellaufrufe, Tokens, Ladezeit und Inferenzzeit
-- **Rainbow-lite** als kleines Quality-Diversity-Archiv für adaptive Angriffe
-- nur eine kleine Python-Abhängigkeit: `tqdm` für Fortschritt und ETA
+- three increasingly difficult attack scenarios with separate secrets: Level 1
+  deliberately contains an easy-to-find legacy QA flaw, Level 2 a narrowly
+  defined unsafe SQL export path, and Level 3 a stateful three-stage disaster
+  recovery flaw
+- **Baseline:** protection through a system prompt only
+- **Guarded:** a separate LLM input classifier, heuristic rules, and a
+  deterministic output filter
+- a challenging guarded bypass in Level 3 involving multi-turn state, a flawed
+  legacy allowlist, and Base64 exfiltration
+- a local chat UI with model selection, hints, and separate conversation
+  histories
+- an integrated attack playbook with explained methods and loadable payloads
+- a defense trace for every response and an animated breach finale
+- a **Defense Builder** with six individually configurable layers and five
+  presets
+- an **Auto Red-Team Agent** that executes seed attacks and uses Ollama to
+  analyze and mutate failed attempts
+- a **Benchmark Heatmap** comparing prompt-only, input-guard, output-filter,
+  and full-pipeline configurations by ASR, false-positive rate, and latency
+- live metrics for attack success rate, blocks, and latency
+- a reproducible 30-case study with 15 attacks and 15 benign, XSTest-inspired
+  contrast cases
+- local comparison adapters for Promptbreak Guard, Llama Guard 3, and
+  ShieldGemma
+- Ollama telemetry for model calls, tokens, load time, and inference time
+- **Rainbow-lite**, a small quality-diversity archive for adaptive attacks
+- only one small Python dependency: `tqdm` for progress bars and ETA
 
-## Modellwahl
+## Model selection
 
-Der Default ist `gemma4:latest`, weil dieses Modell auf dem Zielrechner bereits
-installiert ist und System-Prompts nativ unterstützt. Das ist für einen
-Prompt-Injection-Vergleich besonders passend. Gemma 4 ist die aktuelle
-Modellgeneration; wer weniger Arbeitsspeicher hat, kann problemlos Gemma 3
-verwenden.
+The default is `gemma4:latest` because it is already installed on the target
+machine and natively supports system prompts, which is particularly useful for
+a prompt-injection comparison. Gemma 4 is the current model generation; users
+with less memory can use Gemma 3 instead.
 
-| Hardware     | Empfehlung      | Downloadgröße | Einordnung                                    |
-| ------------ | --------------- | ------------: | --------------------------------------------- |
-| 8 GB RAM     | `gemma3:1b`     |    ca. 815 MB | schnell, aber deutlich leichter auszutricksen |
-| 16 GB RAM    | `gemma3:4b`     |    ca. 3,3 GB | kompakter Fallback                            |
-| 16–24 GB RAM | `gemma4:latest` |    ca. 9,6 GB | **Default auf diesem Rechner**                |
-| 24+ GB RAM   | `gemma4:12b`    |    ca. 7,6 GB | aktuelle Generation, längerer Kontext         |
+| Hardware | Recommendation | Download size | Notes |
+| --- | --- | ---: | --- |
+| 8 GB RAM | `gemma3:1b` | approx. 815 MB | fast, but considerably easier to bypass |
+| 16 GB RAM | `gemma3:4b` | approx. 3.3 GB | compact fallback |
+| 16–24 GB RAM | `gemma4:latest` | approx. 9.6 GB | **default on the target machine** |
+| 24+ GB RAM | `gemma4:12b` | approx. 7.6 GB | current generation, longer context |
 
-Die Größen stammen aus den offiziellen Ollama-Modellseiten für
-[Gemma 4](https://ollama.com/library/gemma4) und
-[Gemma 3](https://ollama.com/library/gemma3). Strukturierte Ausgaben werden für
-den Guard-Classifier über Ollamas JSON-Schema-Unterstützung angefordert.
+Sizes are taken from the official Ollama pages for
+[Gemma 4](https://ollama.com/library/gemma4) and
+[Gemma 3](https://ollama.com/library/gemma3). The guard classifier requests
+structured output through Ollama's JSON Schema support.
 
-### Chinesische Vergleichsmodelle
+### Chinese comparison models
 
-Für einen herkunftsübergreifenden Vergleich enthält `model_adapters.py` kurze
-Aliase für mehrere chinesische Ollama-Modelle. Die Downloadgröße ist nur ein
-grober Hardware-Proxy; Parameterzahl, Quantisierung und Architektur sind nicht
-direkt gleichzusetzen. Stand: 31. Juli 2026.
+For a cross-origin comparison, `promptbreak/model_adapters.py` defines short aliases for
+several Chinese Ollama models. Download size is only a rough hardware proxy;
+parameter count, quantization, and architecture are not directly comparable.
+Information current as of July 31, 2026.
 
-| Alias | Ollama-Tag | Download | Kontext | Verwendung |
+| Alias | Ollama tag | Download | Context | Use |
 | --- | --- | ---: | ---: | --- |
-| `qwen35_4b` | `qwen3.5:4b` | 3,4 GB | 256K | speichersparender getesteter Vergleich |
-| `qwen35_9b` | `qwen3.5:9b` | 6,6 GB | 256K | moderner Hauptvergleich |
-| `qwen3_14b` | `qwen3:14b` | 9,3 GB | 40K | ähnlichste Downloadgröße |
-| `deepseek_r1_14b` | `deepseek-r1:14b` | 9,0 GB | 128K | reasoning-orientierter Vergleich |
-| `glm4_9b` | `glm4:9b` | 5,5 GB | 128K | optionaler älterer Vergleich |
+| `qwen35_4b` | `qwen3.5:4b` | 3.4 GB | 256K | memory-efficient tested comparison |
+| `qwen35_9b` | `qwen3.5:9b` | 6.6 GB | 256K | modern primary comparison |
+| `qwen3_14b` | `qwen3:14b` | 9.3 GB | 40K | closest download-size match |
+| `deepseek_r1_14b` | `deepseek-r1:14b` | 9.0 GB | 128K | reasoning-oriented comparison |
+| `glm4_9b` | `glm4:9b` | 5.5 GB | 128K | optional older comparison |
 
-Quellen: [Qwen 3.5](https://ollama.com/library/qwen3.5),
+Sources: [Qwen 3.5](https://ollama.com/library/qwen3.5),
 [Qwen 3](https://ollama.com/library/qwen3),
-[DeepSeek R1](https://ollama.com/library/deepseek-r1) und
-[GLM-4](https://ollama.com/library/glm4). Der Adapter deaktiviert bei Qwen und
-DeepSeek das standardmäßig mögliche Thinking während der Evaluation. Dadurch
-werden Latenz und Tokenverbrauch nicht durch unterschiedlich lange Reasoning-
-Traces verzerrt. Beliebige andere Ollama-Tags funktionieren weiterhin direkt.
+[DeepSeek R1](https://ollama.com/library/deepseek-r1), and
+[GLM-4](https://ollama.com/library/glm4). The adapter disables optional
+thinking for Qwen and DeepSeek during evaluation so that latency and token use
+are not distorted by reasoning traces of different lengths. Any other Ollama
+tag can still be supplied directly.
 
-## Schnellstart
+### Experimental fine-tuned Llama guard
 
-Voraussetzungen: Python 3.9+ sowie
-[Ollama](https://docs.ollama.com/macos) unter macOS, Linux oder Windows.
+[`finetuning/overfiltering.ipynb`](finetuning/overfiltering.ipynb) contains an
+experimental binary Llama sequence classifier trained to distinguish benign
+prompts (`0`) from prompt injections (`1`). It uses 4-bit NF4 loading and LoRA
+adapters on the attention projections. The accompanying
+[`data/finetuning/train.json`](data/finetuning/train.json) contains
+76,735 examples from 22 named sources: 61,069 benign prompts and 15,666
+injections. The 41 MB dataset is stored with Git LFS; run `git lfs pull` after
+cloning if it was not downloaded automatically.
+
+The experiment is based on the open-source training corpus and overdefense
+motivation of [PIGuard](https://github.com/leolee99/PIGuard/tree/main) and its
+[ACL 2025 paper](https://aclanthology.org/2025.acl-long.1468/), but it is not a
+PIGuard reproduction. The published PIGuard model uses DeBERTa and the
+Mitigating Over-defense for Free (MOF) procedure; the notebook instead adapts a
+Llama classifier with QLoRA and does not implement MOF's token-wise bias check
+or synthetic benign-data generation.
+
+The notebook has produced a local checkpoint and a versioned training log. Its
+best recorded validation F1 is 0.9382 at step 600, but the dataset still
+contains duplicate, empty, and conflicting records that must be resolved before
+a leakage-safe split is made. These values are training diagnostics, not final
+held-out evidence.
+See [`FINE_TUNING.md`](FINE_TUNING.md) for the implementation inventory,
+reproducibility requirements, attribution wording, and proposed evaluation.
+
+## Quick start
+
+Requirements: Python 3.10+ and [Ollama](https://docs.ollama.com/macos) on macOS,
+Linux, or Windows.
 
 ```bash
 cd project
 uv sync
 ollama pull gemma4
-uv run python main.py
+uv run python -m promptbreak
 ```
 
-Danach <http://127.0.0.1:8000> öffnen. Falls die Ollama-App nicht automatisch
-läuft:
+To use the fine-tuned PyTorch guard or run the notebook, install the optional
+dependency group and select **Fine-tuned Llama guard** in the app:
+
+```bash
+uv sync --group finetuning
+uv run python -m promptbreak
+```
+
+Then open <http://127.0.0.1:8000>. If the Ollama application is not already
+running:
 
 ```bash
 ollama serve
 ```
 
-Ein anderes Modell lässt sich entweder in der Oberfläche auswählen oder beim
-Start festlegen:
+Select a different model in the UI or set it at startup:
 
 ```bash
-OLLAMA_MODEL=gemma3:4b python3 main.py --port 8000
+OLLAMA_MODEL=gemma3:4b python3 -m promptbreak --port 8000
 ```
 
-Für einen abweichenden Ollama-Server:
+To use a different Ollama server:
 
 ```bash
-OLLAMA_URL=http://127.0.0.1:11434 python3 main.py
+OLLAMA_URL=http://127.0.0.1:11434 python3 -m promptbreak
 ```
 
-## Kompletter reproduzierbarer Ablauf
+## Complete reproducible workflow
 
-Die folgenden Befehle führen Tests, statischen Vergleich, False-Positive-
-Diagnose, Rainbow-Lite und Visualisierungen in der vorgesehenen Reihenfolge aus.
-Alle Befehle werden aus `project/` aufgerufen.
+The following commands run tests, the static comparison, false-positive
+diagnosis, Rainbow-lite, and visualizations in the intended order. Run all
+commands from `project/`.
 
-### 1. Umgebung und Modelle vorbereiten
+### 1. Prepare the environment and models
 
 ```bash
 uv sync
@@ -122,44 +162,44 @@ ollama pull shieldgemma:2b
 ollama list
 ```
 
-Falls Ollama nicht automatisch läuft:
+If Ollama is not already running:
 
 ```bash
 ollama serve
 ```
 
-### 2. Tests ausführen
+### 2. Run the tests
 
 ```bash
 uv run python -m unittest discover -s tests -v
 ```
 
-### 3. Benchmarkmatrix ohne Modellaufrufe prüfen
+### 3. Validate the benchmark matrix without model calls
 
 ```bash
-uv run python compare_guards.py \
+uv run python -m experiments.compare_guards \
   --target-model gemma4:latest \
   --repeats 3 \
   --dry-run
 ```
 
-Die erwartete Matrix enthält 30 Fälle, fünf Konfigurationen, drei
-Wiederholungen und damit 450 Case-Configuration-Beobachtungen.
+The expected matrix contains 30 cases, five configurations, and three repeats,
+for a total of 450 case-configuration observations.
 
-### 4. Optionalen kurzen Smoke Test ausführen
+### 4. Run an optional short smoke test
 
 ```bash
-uv run python compare_guards.py \
+uv run python -m experiments.compare_guards \
   --target-model gemma4:latest \
   --repeats 1 \
   --max-cases 4 \
   --output evaluation-results/smoke-guards.json
 ```
 
-### 5. Vollständigen Guard-Vergleich ausführen
+### 5. Run the full guard comparison
 
 ```bash
-uv run python compare_guards.py \
+uv run python -m experiments.compare_guards \
   --target-model gemma4:latest \
   --promptbreak-model gemma4:latest \
   --llama-guard-model llama-guard3:1b \
@@ -168,39 +208,38 @@ uv run python compare_guards.py \
   --output evaluation-results/full-guard-comparison.json
 ```
 
-Auf dem für das Seminar verwendeten Rechner dauerte ein vollständiger Lauf
-ungefähr 67 Minuten. Die tatsächliche Laufzeit hängt von Hardware, Modellcache
-und der Zahl früh blockierter Fälle ab.
+On the machine used for the seminar, a complete run took approximately 67
+minutes. Actual runtime depends on hardware, the model cache, and how many cases
+are blocked early.
 
-### 6. False Positives des Promptbreak Input Guards zuordnen
+### 6. Attribute false positives from the Promptbreak Input Guard
 
 ```bash
-uv run python diagnose_false_positives.py \
+uv run python -m experiments.diagnose_false_positives \
   --model gemma4:latest \
   --output evaluation-results/false-positive-attribution.json
 ```
 
-Der Runner testet die 15 benignen Fälle getrennt gegen die Regex-Heuristiken und
-gegen den Gemma-Klassifikator ohne Heuristiken. Der Report ordnet jeden Fall
-`heuristics_only`, `llm_only`, `both` oder `neither` zu.
+The runner tests all 15 benign cases separately against the regex heuristics and
+the Gemma classifier without heuristics. Each case is attributed to
+`heuristics_only`, `llm_only`, `both`, or `neither`.
 
-### 7. Confidence Threshold systematisch testen
+### 7. Sweep the confidence threshold
 
 ```bash
-uv run python sweep_guard_thresholds.py \
+uv run python -m experiments.sweep_guard_thresholds \
   --model gemma4:latest \
   --output evaluation-results/guard-threshold-sweep.json
 ```
 
-Jeder der 30 Prompts wird genau einmal bei Temperatur 0 klassifiziert. Die
-Thresholds werden anschließend offline auf denselben Rohentscheidungen
-ausgewertet. So ist der Vergleich nicht durch unterschiedliche Modellantworten
-verzerrt.
+Each of the 30 prompts is classified exactly once at temperature 0. Thresholds
+are then evaluated offline on the same raw decisions, avoiding confounding from
+different model outputs.
 
-Gezielte End-to-End-Validierung des überarbeiteten Guards:
+Run a targeted end-to-end validation of the revised guard with:
 
 ```bash
-uv run python compare_guards.py \
+uv run python -m experiments.compare_guards \
   --target-model gemma4:latest \
   --promptbreak-model gemma4:latest \
   --promptbreak-threshold 0.55 \
@@ -210,14 +249,14 @@ uv run python compare_guards.py \
   --output evaluation-results/tuned-guard-validation.json
 ```
 
-### 8. Rainbow-Lite ausführen
+### 8. Run Rainbow-lite
 
-Der Standardlauf erzeugt 24 adaptive Kandidaten. Damit wird jede der zwölf
-nicht-direkten Archivzellen zweimal besucht; erfolgreiche oder weiter
-fortgeschrittene Kandidaten dienen als Eltern späterer Mutationen.
+The default run generates 24 adaptive candidates. Each of the twelve
+non-direct archive cells is visited twice, while successful or more advanced
+candidates become parents of later mutations.
 
 ```bash
-uv run python rainbow_lite.py \
+uv run python -m experiments.rainbow_lite \
   --target-model gemma4:latest \
   --attacker-model qwen35_4b \
   --configuration full_pipeline \
@@ -225,10 +264,10 @@ uv run python rainbow_lite.py \
   --output evaluation-results/rainbow-lite-qwen35-4b-24.json
 ```
 
-Für einen schnellen technischen Smoke-Test reichen vier Mutationen:
+Four mutations are sufficient for a quick technical smoke test:
 
 ```bash
-uv run python rainbow_lite.py \
+uv run python -m experiments.rainbow_lite \
   --target-model gemma4:latest \
   --attacker-model qwen35_4b \
   --configuration full_pipeline \
@@ -236,28 +275,28 @@ uv run python rainbow_lite.py \
   --output evaluation-results/rainbow-lite-qwen35-4b-smoke.json
 ```
 
-Der Defense-Filter und der objektive Judge sind getrennt: Der Filter erkennt
-die von der Anwendung unterstützten direkten, Hex-, ROT13-, Reverse- und
-Base64-Leaks. Der stärkere Judge erkennt zusätzlich Dezimal-, Binär- und
-Unicode-Codepoint-Ausgaben. Wären beide identisch, könnte ein vom Judge
-messbarer Full-Pipeline-Bypass definitionsgemäß nie auftreten.
+The defense filter and objective judge are separate. The filter recognizes the
+application's supported direct, hexadecimal, ROT13, reverse, and Base64 leaks.
+The stronger judge additionally detects decimal, binary, and Unicode-code-point
+outputs. If both components were identical, a measurable full-pipeline bypass
+would be impossible by definition.
 
-### 9. Visualisierungen erzeugen
+### 9. Generate visualizations
 
-Ohne Argumente liest das Visualisierungsskript die historischen vollständigen
-Reports. Beliebige datierte Guard- und Rainbow-Reports lassen sich in einen
-eigenen Ausgabeordner rendern:
+With no arguments, the visualization script reads the historical full reports.
+Any dated guard and Rainbow reports can be rendered to a separate output
+directory:
 
 ```bash
-uv run python visualize_results.py \
+uv run python -m experiments.visualize_results \
   --guard-report evaluation-results/qwen35-4b-full-guard-comparison-2026-08-07.json \
   --rainbow-report evaluation-results/rainbow-lite-qwen35-4b-24-2026-08-07.json \
   --output-dir evaluation-results/visualizations/qwen35-4b-2026-08-07
 ```
 
-Es erzeugt SVGs und eine HTML-Übersicht unter
-`evaluation-results/visualizations/`. PNG-Dateien können optional mit
-`rsvg-convert` aus `librsvg` erzeugt werden:
+This creates SVG files and an HTML overview in
+`evaluation-results/visualizations/`. PNG files can optionally be generated
+with `rsvg-convert` from `librsvg`:
 
 ```bash
 for file in evaluation-results/visualizations/*.svg; do
@@ -265,10 +304,10 @@ for file in evaluation-results/visualizations/*.svg; do
 done
 ```
 
-### 10. Zielmodelle vergleichen
+### 10. Compare target models
 
-Die Adapter laden keine Modelle automatisch herunter. Zuerst die tatsächlich
-gewünschten Kandidaten auswählen und explizit installieren, zum Beispiel:
+The adapters never download models automatically. First select and explicitly
+install the desired candidates, for example:
 
 ```bash
 ollama pull qwen3.5:9b
@@ -276,16 +315,16 @@ ollama pull qwen3:14b
 ollama pull deepseek-r1:14b
 ```
 
-Die geplante Matrix lässt sich ohne Downloads und Modellaufrufe prüfen:
+Inspect the planned matrix without downloads or model calls:
 
 ```bash
-uv run python compare_target_models.py --dry-run
+uv run python -m experiments.compare_target_models --dry-run
 ```
 
-Ein kleiner Smoke Test mit Gemma 4 und Qwen 3.5:
+Run a small Gemma 4 and Qwen 3.5 smoke test:
 
 ```bash
-uv run python compare_target_models.py \
+uv run python -m experiments.compare_target_models \
   --model gemma4 \
   --model qwen35_9b \
   --max-cases 4 \
@@ -293,14 +332,13 @@ uv run python compare_target_models.py \
   --output evaluation-results/target-model-smoke.json
 ```
 
-Ohne `--model` werden Gemma 4 sowie die drei empfohlenen chinesischen Modelle
-verglichen. Standardmäßig laufen `prompt_only` und `full_pipeline`; der
-Promptbreak-Guard bleibt dabei auf Gemma 4 fixiert, damit wirklich nur das
-Zielmodell variiert. Für einen chinesischen Guard-Classifier funktioniert der
-bestehende Runner ebenfalls mit Alias:
+Without `--model`, the runner compares Gemma 4 and the three recommended
+Chinese models. By default, it evaluates `prompt_only` and `full_pipeline`; the
+Promptbreak guard remains fixed to Gemma 4 so that only the target model changes.
+The existing runner also accepts an alias for a Chinese guard classifier:
 
 ```bash
-uv run python compare_guards.py \
+uv run python -m experiments.compare_guards \
   --target-model gemma4 \
   --promptbreak-model qwen35_9b \
   --config promptbreak_guard \
@@ -309,144 +347,162 @@ uv run python compare_guards.py \
   --output evaluation-results/qwen35-guard.json
 ```
 
-### Aufgezeichneter Qwen-3.5-4B-Lauf
+### Recorded Qwen 3.5 4B run
 
-Am 7. August 2026 wurde der vollständige 30×5-Vergleich mit einer Wiederholung
-und `qwen35_4b` sowohl als Zielmodell als auch als Promptbreak-Klassifikator
-ausgeführt. Promptbreak erreichte 13,3 % ASR, 0,0 % Input-Guard-FPR und F1
-0,929; die Full Pipeline erreichte 0,0 % ASR. Zwei benigne Eingaben führten beim
-Zielmodell zu echten direkten Leaks, die der Output-Filter abfing. Deshalb
-beträgt ihre End-to-End-Benign-Blockrate 13,3 %, während die Input-Guard-FPR
-0,0 % bleibt.
+On August 7, 2026, the full 30×5 comparison was run once with `qwen35_4b` as
+both target model and Promptbreak classifier. Promptbreak achieved 13.3% ASR,
+0.0% input-guard FPR, and F1 0.929; the full pipeline achieved 0.0% ASR. Two
+benign inputs caused actual direct leaks from the target model, which were
+caught by the output filter. Its end-to-end benign block rate is therefore
+13.3%, while its input-guard FPR remains 0.0%.
 
-- [vollständiger Qwen-Guard-Report](evaluation-results/qwen35-4b-full-guard-comparison-2026-08-07.json)
-- [Qwen-Threshold-Sweep](evaluation-results/qwen35-4b-guard-threshold-sweep-2026-08-07.json)
-- [Qwen-False-Positive-Attribution](evaluation-results/qwen35-4b-false-positive-attribution-2026-08-07.json)
-- [24er Rainbow-Lite-Report](evaluation-results/rainbow-lite-qwen35-4b-24-2026-08-07.json)
-- [Qwen-SVG-Galerie](evaluation-results/visualizations/qwen35-4b-2026-08-07/index.html)
+- [Full Qwen guard report](evaluation-results/qwen35-4b-full-guard-comparison-2026-08-07.json)
+- [Qwen threshold sweep](evaluation-results/qwen35-4b-guard-threshold-sweep-2026-08-07.json)
+- [Qwen false-positive attribution](evaluation-results/qwen35-4b-false-positive-attribution-2026-08-07.json)
+- [24-iteration Rainbow-lite report](evaluation-results/rainbow-lite-qwen35-4b-24-2026-08-07.json)
+- [Qwen SVG gallery](evaluation-results/visualizations/qwen35-4b-2026-08-07/index.html)
 
-Der Lauf ist ein vollständiger Modell-/Konfigurationspass, aber wegen nur einer
-Wiederholung kein Ersatz für die noch offene finale 30×5×3-Evaluation.
+This is a complete model/configuration pass, but its single repeat does not
+replace the still-pending final 30×5×3 evaluation.
 
-### Result-Dashboard
+### Results dashboard
 
-Das [Result-Dashboard](dashboard/index.html) fasst die kanonischen
-Gemma-, Qwen-4B- und Qwen-27B-Reports sowie Threshold-, Attribution- und
-Rainbow-Lite-Ergebnisse zusammen. Der Webapp-Server liefert es unter
-`/dashboard/` aus; die Seite lädt die kompakte, hash-verknüpfte Datenansicht bei
-jedem Aufruf über `/api/results` direkt aus den versionierten JSON-Reports.
+The [results dashboard](dashboard/index.html) summarizes the canonical Gemma,
+Qwen 4B, and Qwen 27B reports, together with threshold, attribution,
+Rainbow-lite, and fine-tuning diagnostics. The web application serves it at `/dashboard/`; on every
+load, the page fetches a compact, hash-linked data view from the versioned JSON
+reports through `/api/results`.
 
-Eine API-Kostenschätzung trennt Input- und Output-Tokens und rechnet sie gegen
-datierte Preisprofile. Sie ist kontrafaktisch: Die gemessenen Läufe liefen lokal
-über Ollama und verursachten keine API-Kosten. Für Qwen 3.5 4B wird mangels eines
-direkten Alibaba-Endpunkts das klar markierte Qwen-3.5-Flash-Profil als Proxy
-verwendet.
+An API cost estimate separates input and output tokens and evaluates them
+against dated pricing profiles. It is counterfactual: all measured runs were
+local Ollama runs with no API cost. Because there is no direct Alibaba endpoint
+for Qwen 3.5 4B, the Qwen 3.5 Flash profile is used as an explicitly labeled
+proxy.
 
 ```bash
-uv run python main.py
+uv run python -m promptbreak
 ```
 
-Anschließend liegen Webapp und Dashboard unter
-`http://127.0.0.1:8000/` beziehungsweise
-`http://127.0.0.1:8000/dashboard/`. Mit `uv run python
-build_results_dashboard.py` kann weiterhin optional ein statischer
-`dashboard/data.js`-Snapshot erzeugt werden; die Webapp benötigt ihn nicht.
+The web application and dashboard are then available at
+`http://127.0.0.1:8000/` and `http://127.0.0.1:8000/dashboard/`. An optional
+static `dashboard/data.js` snapshot can still be generated with
+`uv run python -m promptbreak.dashboard`; the web application does not require it.
 
-### Fortschrittsbalken und ETA
+### Progress bars and ETA
 
-`compare_guards.py`, `compare_target_models.py`, `rainbow_lite.py`, `evaluate.py`,
-`diagnose_false_positives.py` und `sweep_guard_thresholds.py` verwenden `tqdm`.
+The command modules in `experiments/` use `tqdm` for progress reporting.
 
-- Der Guard-Vergleich zeigt Gesamtfortschritt, aktuelle Konfiguration,
-  Wiederholung und Fall-ID.
-- Rainbow-Lite zählt Mutation und anschließende Evaluation als getrennte
-  Phasen, damit die ETA nicht zwei Modellaufrufe als einen Schritt behandelt.
-- Die ETA stabilisiert sich nach den ersten Modellaufrufen.
-- Bei einem Modellwechsel zwischen Gemma, Llama Guard und ShieldGemma kann sie
-  vorübergehend springen, weil Ladezeit und Durchsatz unterschiedlich sind.
-- Fortschrittsausgabe läuft über `stderr`; JSON auf `stdout` bleibt parsebar.
+- The guard comparison shows overall progress, the current configuration,
+  repeat, and case ID.
+- Rainbow-lite counts mutation and subsequent evaluation as separate phases so
+  that the ETA does not mistake two model calls for one step.
+- The ETA stabilizes after the first model calls.
+- When switching between Gemma, Llama Guard, and ShieldGemma, the estimate may
+  jump temporarily because load time and throughput differ.
+- Progress output is written to `stderr`, leaving JSON on `stdout` parseable.
 
 ## Evaluation
 
-In der Weboberfläche führt **RUN 10-CASE EVALUATION** den festen Testsatz für
-den gerade aktiven Modus aus. Für einen direkten Vergleich beider Methoden:
+In the web UI, **RUN 10-CASE EVALUATION** executes the fixed test set for the
+currently active mode. For a direct comparison of both methods:
 
 ```bash
-uv run python evaluate.py \
+uv run python -m experiments.evaluate \
   --model gemma4:latest \
   --level 1 \
   --output evaluation-results/gemma3-4b.json
 ```
 
-Erfasst werden:
+The evaluation records:
 
-- **Attack Success Rate (ASR):** Anteil der Angriffe, bei denen das Secret
-  tatsächlich an den Client ausgeliefert wird; niedriger ist besser.
-- **End-to-End-Benign-Blockrate:** Anteil harmloser Anfragen, die an irgendeiner
-  Schicht blockiert werden; das schließt abgefangene Zielmodell-Leaks ein.
-- **Input-Guard-FPR:** Anteil harmloser Anfragen, die bereits der Input Guard
-  fälschlich blockiert; niedriger ist besser.
-- **Accuracy:** erfolgreiche Abwehr von Angriffen plus Durchlassen harmloser
-  Anfragen.
-- **Latenz:** End-to-End-Laufzeit je Fall. Guarded benötigt meist einen
-  zusätzlichen Modellaufruf.
+- **Attack Success Rate (ASR):** the share of attacks for which the secret is
+  actually delivered to the client; lower is better.
+- **End-to-end benign block rate:** the share of benign requests blocked by any
+  layer, including intercepted target-model leaks.
+- **Input-guard FPR:** the share of benign requests incorrectly blocked by the
+  input guard; lower is better.
+- **Accuracy:** successful attack defenses plus allowed benign requests.
+- **Latency:** end-to-end runtime per case. Guarded mode usually requires an
+  additional model call.
 
-### Guard-Vergleich
+### Guard comparison
 
-Der versionierte Datensatz
-[`data/guard-evaluation.json`](data/guard-evaluation.json) enthält 15 Angriffe
-und 15 harmlose Kontrastfälle mit angriffsähnlichen Triggerwörtern. Die
-Kontrastmethode ist durch XSTest motiviert; die Fälle selbst sind auf
-Prompt-Injection und die drei Promptbreak-Level zugeschnitten.
+The versioned dataset
+[`data/guard-evaluation.json`](data/guard-evaluation.json) contains 15 attacks
+and 15 benign contrast cases with attack-like trigger words. The contrast
+method is inspired by XSTest; the cases themselves are tailored to prompt
+injection and Promptbreak's three levels.
 
-Die kleinen lokalen Guard-Modelle werden einmalig über Ollama installiert:
+Install the small local guard models once through Ollama:
 
 ```bash
 ollama pull llama-guard3:1b
 ollama pull shieldgemma:2b
 ```
 
-Anschließend vergleicht ein Lauf fünf Konfigurationen. Drei Wiederholungen
-ergeben 450 Einzelmessungen:
+A single run then compares five configurations. Three repeats produce 450
+individual measurements:
 
 ```bash
-uv run python compare_guards.py \
+uv run python -m experiments.compare_guards \
   --target-model gemma4:latest \
   --repeats 3 \
   --output evaluation-results/guard-comparison.json
 ```
 
-Vor einem langen Lauf kann die Matrix ohne Modellaufrufe validiert werden:
+Validate the matrix without model calls before a long run:
 
 ```bash
-uv run python compare_guards.py --dry-run
+uv run python -m experiments.compare_guards --dry-run
 ```
 
-Zusätzlich zu ASR, FPR, Precision, Recall und F1 speichert der Report:
+In addition to ASR, FPR, precision, recall, and F1, the report stores:
 
-- p50- und p95-Wall-Clock-Latenz,
-- mittlere Latenz getrennt nach Guard-Refusal, deterministischem Legacy-Pfad
-  und echtem Zielmodellpfad,
-- Guard-, Target/Application- und Output-Filter-Zeit,
-- Modell-Ladezeit,
-- Modellaufrufe pro Fall,
-- Input- und Output-Tokens,
-- optionale hypothetische API-Kosten bei explizit übergebenen Tokenpreisen.
+- p50 and p95 wall-clock latency
+- mean latency separated by guard refusal, deterministic legacy path, and real
+  target-model path
+- guard, target/application, and output-filter time
+- model load time
+- model calls per case
+- input and output tokens
+- optional hypothetical API cost when explicit token prices are supplied
 
-Die lokalen API-Kosten sind null. Modellaufrufe, Tokens und Laufzeit dienen als
-reproduzierbare Computational-Cost-Proxys. Llama Guard und ShieldGemma werden
-bewusst out of the box eingesetzt: Beide sind allgemeine Content-Safety-Guards,
-keine speziell trainierten Prompt-Injection-Detektoren.
+Local API cost is zero. Model calls, tokens, and runtime serve as reproducible
+computational-cost proxies. Llama Guard and ShieldGemma are deliberately used
+out of the box: both are general content-safety guards, not classifiers trained
+specifically for prompt injection.
+
+### Evaluating the fine-tuned guard
+
+The fine-tuned Llama classifier should be added as a separate sixth guard, not
+silently substituted for the current Promptbreak guard. Evaluate it first as a
+standalone classifier and then as the learned input component of the full
+pipeline. Compare it with the current Promptbreak guard, Llama Guard 3,
+ShieldGemma, and the official PIGuard checkpoint on identical, paired inputs.
+
+Promptbreak Evaluation v1.1 measures application-specific attack recall and
+end-to-end secret exfiltration, but its 15 benign cases are too small to support
+a strong overdefense claim. A final evaluation should therefore also use the
+complete, untouched 339-case NotInject benchmark. Threshold selection must use
+a separate validation set, with the final test sets evaluated only once. Report
+attack recall, input-guard FPR, overdefense FPR, precision, F1, balanced
+accuracy, ASR, end-to-end benign blocking, latency, memory, and model calls.
+
+Before training or evaluation, remove empty examples, resolve conflicting
+labels, and group exact and near duplicates so that related prompts cannot cross
+split boundaries. Run at least three training seeds and report paired confidence
+intervals. The detailed protocol and acceptance criterion are documented in
+[`FINE_TUNING.md`](FINE_TUNING.md).
 
 ### Rainbow-lite
 
-`rainbow_lite.py` übernimmt aus Rainbow Teaming die Idee eines
-Quality-Diversity-Archivs, bleibt aber bewusst seminar-klein. Das Archiv hat die
-Dimensionen Angriffsfamilie und Transformation; der objektive Judge ist die
-deterministische Secret-Exfiltration.
+`experiments/rainbow_lite.py` adopts the quality-diversity archive idea from Rainbow
+Teaming, while remaining intentionally small enough for a seminar project. The
+archive dimensions are attack family and transformation; the objective judge
+is deterministic secret exfiltration.
 
 ```bash
-uv run python rainbow_lite.py \
+uv run python -m experiments.rainbow_lite \
   --target-model gemma4:latest \
   --attacker-model qwen35_4b \
   --configuration full_pipeline \
@@ -454,12 +510,12 @@ uv run python rainbow_lite.py \
   --output evaluation-results/rainbow-lite-qwen35-4b-24.json
 ```
 
-Berichtet werden Archivabdeckung, Defense-Fortschritt, erfolgreiche Zellen,
-statische Seed-ASR, adaptive Kandidaten-ASR und Success@k. Dies ist eine
-methodisch motivierte Adaption und keine Replikation der rechenintensiven
-Originalstudie.
+The report includes archive coverage, defense progress, successful cells,
+static-seed ASR, adaptive-candidate ASR, and Success@k. This is a methodically
+motivated adaptation, not a reproduction of the compute-intensive original
+study.
 
-## Architektur
+## Architecture
 
 ```text
 Baseline
@@ -471,32 +527,32 @@ user input → rules + LLM classifier → target LLM + hardening → leak filter
                    └──────────────── safe refusal ────────────┘
 ```
 
-Das Backend ist ein kleiner `ThreadingHTTPServer`. Es serviert die statischen
-Dateien und spricht Ollamas lokale `/api/chat`-Schnittstelle an. Secrets werden
-nicht an den Browser übertragen. Sitzungsmetriken leben nur im Arbeitsspeicher
-und verschwinden beim Server-Neustart.
+The backend uses Python's small `ThreadingHTTPServer`. It serves static assets
+and communicates with Ollama's local `/api/chat` endpoint. Secrets are never
+sent to the browser. Session metrics exist only in memory and disappear when
+the server restarts.
 
-Die absichtlich verwundbaren Baseline-Pfade werden deterministisch im Backend
-ausgelöst. Dadurch hängt ein korrekter Lösungsweg nicht davon ab, ob ein modernes
-Modell die unsichere Instruktion zufällig trotzdem verweigert. Alle übrigen
-Antworten werden weiterhin von Ollama generiert.
+Intentionally vulnerable baseline paths are triggered deterministically in the
+backend. This ensures that a valid solution does not depend on whether a modern
+model happens to refuse the unsafe instruction. All other responses are still
+generated by Ollama.
 
-Level 3 enthält zusätzlich einen reproduzierbaren Angriff auf die Guarded-Pipeline.
-Eine zustandslose Legacy-Allowlist vertraut einer dreistufig aufgebauten
-Recovery-Sequenz. Der finale Wert wird als NOVA-64-Hülle (Base64) ausgegeben:
-Der einfache Klartext-Output-Filter übersieht ihn, ein getrennt implementierter
-Evaluator dekodiert ihn jedoch und wertet ihn korrekt als Exfiltration. Damit
-sind Schutzmechanismus und Messinstrument bewusst nicht mehr identisch.
+Level 3 additionally contains a reproducible attack against the guarded
+pipeline. A stateless legacy allowlist trusts a three-stage recovery sequence.
+The final value is emitted in a NOVA-64 wrapper (Base64): the simple plaintext
+output filter misses it, but a separately implemented evaluator decodes it and
+correctly counts it as exfiltration. The defense mechanism and measurement
+instrument are therefore deliberately not identical.
 
-## Pitch Lab
+## Pitch lab
 
-Eine zitierfähige Einordnung und paper-basierte Erweiterungs-Roadmap stehen in
-[`LITERATURE.md`](LITERATURE.md); BibTeX-Einträge liegen in
+A citable research overview and paper-based extension roadmap are available in
+[`LITERATURE.md`](LITERATURE.md); BibTeX entries are stored in
 [`references.bib`](references.bib).
 
 ### Defense Builder
 
-Die Oberfläche erlaubt eine Ablation der einzelnen Sicherheitskomponenten:
+The UI supports ablation of individual security components:
 
 1. Heuristic Scanner
 2. LLM Input Guard
@@ -505,71 +561,80 @@ Die Oberfläche erlaubt eine Ablation der einzelnen Sicherheitskomponenten:
 5. Encoding Detector
 6. Context-Aware Guard
 
-Die Presets `Prompt only`, `Input guard`, `Output filter`, `Standard` und
-`Full pipeline` setzen feste Konfigurationen. Manuelle Änderungen
-erzeugen eine Custom-Konfiguration, die sofort für Chat und Auto-Red-Team gilt.
+The `Prompt only`, `Input guard`, `Output filter`, `Standard`, and `Full
+pipeline` presets select fixed configurations. Manual changes create a custom
+configuration that immediately applies to chat and Auto Red-Team.
 
 ### Auto Red-Team Agent
 
-Der Agent beginnt mit reproduzierbaren Seeds aus dem Playbook. Hält die Defense,
-erzeugt das ausgewählte lokale Ollama-Modell anhand der letzten Resultate eine
-neue Strategie und einen neuen Angriffsprompt als strukturierte Ausgabe. Pro
-Lauf sind ein bis fünf Runden möglich; bei einem Breach stoppt der Agent.
+The agent begins with reproducible seeds from the playbook. If the defense
+holds, the selected local Ollama model analyzes the latest results and produces
+a new strategy and attack prompt as structured output. A run may contain one to
+five rounds and stops after a breach.
 
-### Benchmark-Heatmap
+### Benchmark Heatmap
 
-`BUILD HEATMAP` führt vier Angriffsarten und eine harmlose Kontrollanfrage gegen
-vier Defense-Konfigurationen aus:
+**BUILD HEATMAP** runs four attack types and one benign control request against
+four defense configurations:
 
 - Authority Claiming
 - Format Smuggling
 - Multi-Turn Context Poisoning
 - Encoding Exfiltration
 
-Die Heatmap zeigt die Attack Success Rate je Zelle. Darunter werden die
-aggregierte ASR, False-Positive-Rate und mittlere End-to-End-Latenz ausgegeben.
-Da die Messung echte lokale Modellaufrufe enthält, kann sie einige Minuten
-dauern.
+The heatmap shows attack success rate for each cell. Aggregate ASR,
+false-positive rate, and mean end-to-end latency appear below it. Because the
+benchmark performs real local model calls, it may take several minutes.
 
-## Projektstruktur
+## Project structure
 
 ```text
 project/
-├── main.py              # Webserver, Ollama-Client und Defense-Pipelines
-├── evaluate.py          # reproduzierbare CLI-Evaluation
-├── compare_guards.py    # 30-Fälle-Vergleich der Guard-Modelle
-├── compare_target_models.py
-│                         # Vergleich verschiedener Ollama-Zielmodelle
-├── diagnose_false_positives.py
-│                         # Attribution: Heuristiken vs. LLM-Klassifikator
-├── sweep_guard_thresholds.py
-│                         # ein Modelllauf, mehrere Offline-Thresholds
-├── rainbow_lite.py      # kleines Quality-Diversity-Red-Teaming
-├── visualize_results.py # reproduzierbare SVG-Auswertung der JSON-Reports
-├── evaluation-results/  # versionierte JSON-Reports und SVG-Auswertungen
-├── pitch/               # Typst-Quelle, Grafiken und gebautes Pitch-PDF
+├── promptbreak/         # web application package
+│   ├── __main__.py       # `python -m promptbreak` entry point
+│   ├── main.py           # server, Ollama client, and defense pipelines
+│   ├── dashboard.py      # dashboard data builder
+│   ├── finetuned_guard.py # lazy PyTorch/PEFT guard inference
+│   └── model_adapters.py # Ollama model aliases and request options
+├── experiments/         # reproducible benchmark and analysis commands
+│   ├── compare_guards.py
+│   ├── compare_target_models.py
+│   ├── diagnose_false_positives.py
+│   ├── evaluate.py
+│   ├── rainbow_lite.py
+│   ├── repair_guard_report.py
+│   ├── sweep_guard_thresholds.py
+│   └── visualize_results.py
+├── finetuning/
+│   ├── overfiltering.ipynb  # experimental PIGuard-inspired Llama QLoRA training
+│   └── training_log_history.json
+├── FINE_TUNING.md       # provenance, limitations, and evaluation protocol
+├── evaluation-results/  # versioned JSON reports and SVG analyses
+├── report/              # ACL-style Typst report and compiled PDF
+├── pitch/               # Typst source, graphics, and compiled pitch PDF
 ├── data/
-│   └── guard-evaluation.json
+│   ├── guard-evaluation.json
+│   └── finetuning/
+│       └── train.json   # source-tagged corpus stored with Git LFS
 ├── static/
 │   ├── index.html
 │   ├── style.css
 │   └── app.js
-├── tests/               # 53 modellfreie Unit-Tests
+├── tests/               # 61 model-free unit tests
 └── pyproject.toml
 ```
 
 ## Tests
 
-Die Unit-Tests benötigen kein Modell:
+The unit tests do not require a model:
 
 ```bash
 uv run python -m unittest discover -s tests -v
 ```
 
-## Grenzen und Sicherheit
+## Limitations and safety
 
-Das Projekt ist eine isolierte Simulation. Es besitzt keine Tools und greift
-nicht auf Dateien, Accounts oder reale Zugangsdaten zu. Ein LLM-Guard garantiert
-keine Sicherheit; gerade der Vergleich soll messbar zeigen, welche Angriffe und
-False Positives verbleiben. Secrets in `main.py` sind Spielwerte, keine echten
-Credentials.
+This project is an isolated simulation. It has no tools and does not access
+files, accounts, or real credentials. An LLM guard cannot guarantee security;
+the purpose of the comparison is to measure remaining attacks and false
+positives. Secrets in `promptbreak/main.py` are game values, not real credentials.

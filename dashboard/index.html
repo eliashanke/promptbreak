@@ -102,6 +102,25 @@
           <p id="rainbow-note" class="method-note"></p>
         </section>
 
+        <section class="panel">
+          <header class="panel-head">
+            <div><span>08</span><div><p>FINE-TUNING</p><h2>Guard training diagnostics</h2></div></div>
+            <small id="training-meta">QLORA · SEQUENCE CLASSIFICATION</small>
+          </header>
+          <div id="training-summary" class="training-summary"></div>
+          <div class="training-charts">
+            <article class="training-chart-card">
+              <header><strong>VALIDATION QUALITY</strong><span>F1 · PRECISION · RECALL</span></header>
+              <div id="training-quality-chart" class="line-chart"></div>
+            </article>
+            <article class="training-chart-card">
+              <header><strong>LOSS CURVE</strong><span>TRAIN · EVALUATION</span></header>
+              <div id="training-loss-chart" class="line-chart"></div>
+            </article>
+          </div>
+          <p id="training-note" class="method-note"></p>
+        </section>
+
         <footer class="footer">
           <div><span>DATA SOURCES</span><div id="source-links" class="source-links"></div></div>
           <p>Generated from versioned JSON reports. No model calls are performed by this dashboard.</p>

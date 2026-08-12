@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from build_results_dashboard import build_dashboard_data
+from promptbreak.dashboard import build_dashboard_data
 
 
 class ResultsDashboardTests(unittest.TestCase):
@@ -31,6 +31,14 @@ class ResultsDashboardTests(unittest.TestCase):
         self.assertEqual(len(self.data["rainbows"]), 2)
         self.assertEqual(self.data["rainbows"][1]["coverage"], 100.0)
 
+    def test_dashboard_exposes_finetuning_history(self):
+        training = self.data["training"]
+        self.assertEqual(training["maxStep"], 700)
+        self.assertEqual(training["best"]["step"], 600)
+        self.assertEqual(training["best"]["f1"], 0.9382)
+        self.assertEqual(len(training["evaluations"]), 13)
+        self.assertEqual(training["source"]["file"], "finetuning/training_log_history.json")
+
     def test_api_cost_inputs_and_pricing_sources_are_explicit(self):
         run = next(run for run in self.data["runs"] if run["id"] == "qwen27")
         self.assertTrue(all(config["tokens"] == config["promptTokens"] + config["completionTokens"] for config in run["configs"]))
@@ -48,6 +56,8 @@ class ResultsDashboardTests(unittest.TestCase):
         self.assertIn('aria-labelledby="info-modal-title"', html)
         self.assertIn('data-info=', script)
         self.assertIn('modal.showModal()', script)
+        self.assertIn('id="training-quality-chart"', html)
+        self.assertIn("renderTraining()", script)
 
     def test_dashboard_uses_live_results_api_and_links_back_to_lab(self):
         root = Path(__file__).resolve().parents[1]

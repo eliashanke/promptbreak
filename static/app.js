@@ -7,6 +7,7 @@ const state = {
   preset: "prompt_only",
   level: 1,
   defense: "baseline",
+  guardBackend: "promptbreak",
   sessionId: null,
   histories: {},
   busy: false,
@@ -22,6 +23,7 @@ const elements = {
   objective: $("#objective"),
   title: $("#terminal-title"),
   model: $("#model-select"),
+  guard: $("#guard-select"),
   status: $("#ollama-status"),
   toast: $("#toast"),
   evalPanel: $("#evaluation-panel"),
@@ -44,7 +46,7 @@ async function api(path, options = {}) {
 
 function historyKey() {
   const signature = Object.keys(state.layers).sort().map((key) => state.layers[key] ? "1" : "0").join("");
-  return `${state.level}:${state.defense}:${signature}`;
+  return `${state.level}:${state.defense}:${state.guardBackend}:${signature}`;
 }
 function currentHistory() { return state.histories[historyKey()] ||= []; }
 function currentLevel() { return state.levels.find((item) => item.id === state.level); }
@@ -228,6 +230,7 @@ async function sendPrompt(event) {
         defense: state.defense,
         layers: state.layers,
         model: elements.model.value,
+        guard_backend: state.guardBackend,
         message: text,
         history: history.map(({ role, content }) => ({ role, content })),
       }),
@@ -271,7 +274,7 @@ async function runEvaluation() {
   try {
     const result = await api("/api/evaluate", {
       method: "POST",
-      body: JSON.stringify({ level: state.level, defense: state.defense, layers: state.layers, model: elements.model.value }),
+      body: JSON.stringify({ level: state.level, defense: state.defense, layers: state.layers, model: elements.model.value, guard_backend: state.guardBackend }),
     });
     const m = result.metrics;
     elements.evalPanel.innerHTML = `
@@ -310,6 +313,7 @@ async function runRedteam() {
         rounds: Number($("#redteam-rounds").value),
         attacker_model: elements.model.value,
         target_model: elements.model.value,
+        guard_backend: state.guardBackend,
       }),
     });
     panel.innerHTML = result.attempts.map((attempt) => `
@@ -352,7 +356,7 @@ async function runBenchmark() {
   try {
     const result = await api("/api/benchmark", {
       method: "POST",
-      body: JSON.stringify({ model: elements.model.value }),
+      body: JSON.stringify({ model: elements.model.value, guard_backend: state.guardBackend }),
     });
     const cellMap = new Map(result.cells.map((cell) => [`${cell.category}:${cell.configuration}`, cell.asr]));
     elements.benchmarkPanel.innerHTML = `
@@ -417,6 +421,9 @@ async function init() {
     state.layerDefinitions = config.defense_layers;
     state.presets = config.defense_presets;
     state.layers = { ...config.defense_presets.prompt_only };
+    elements.guard.innerHTML = config.guard_backends.map((backend) =>
+      `<option value="${escapeHtml(backend.id)}" ${backend.available ? "" : "disabled"}>${escapeHtml(backend.label)}${backend.available ? "" : " · unavailable"}</option>`
+    ).join("");
     state.sessionId = session.session_id;
     $("#build-version").textContent = config.build;
     elements.model.innerHTML = `<option value="${escapeHtml(config.default_model)}">${escapeHtml(config.default_model)}</option>`;
@@ -432,6 +439,11 @@ async function init() {
 }
 
 elements.form.addEventListener("submit", sendPrompt);
+elements.guard.addEventListener("change", () => {
+  state.guardBackend = elements.guard.value;
+  renderHistory();
+  showToast(`GUARD BACKEND // ${elements.guard.options[elements.guard.selectedIndex].text}`);
+});
 elements.input.addEventListener("keydown", (event) => {
   if ((event.metaKey || event.ctrlKey) && event.key === "Enter") elements.form.requestSubmit();
 });
