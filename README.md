@@ -104,6 +104,8 @@ best recorded validation F1 is 0.9382 at step 600, but the dataset still
 contains duplicate, empty, and conflicting records that must be resolved before
 a leakage-safe split is made. These values are training diagnostics, not final
 held-out evidence.
+The report figures can be regenerated with
+`uv run python -m experiments.visualize_training`.
 See [`FINE_TUNING.md`](FINE_TUNING.md) for the implementation inventory,
 reproducibility requirements, attribution wording, and proposed evaluation.
 
@@ -604,7 +606,8 @@ project/
 │   ├── rainbow_lite.py
 │   ├── repair_guard_report.py
 │   ├── sweep_guard_thresholds.py
-│   └── visualize_results.py
+│   ├── visualize_results.py
+│   └── visualize_training.py
 ├── finetuning/
 │   ├── overfiltering.ipynb  # experimental PIGuard-inspired Llama QLoRA training
 │   └── training_log_history.json
