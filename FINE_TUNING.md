@@ -18,6 +18,19 @@ retrains the classifier. The current Promptbreak notebook instead fine-tunes a
 Llama sequence classifier with 4-bit quantization and LoRA. It does not contain
 PIGuard's token-wise recheck or MOF data-generation stage.
 
+Current artifact status:
+
+| Artifact | Repository status | Purpose |
+| --- | --- | --- |
+| `finetuning/overfiltering.ipynb` | versioned | training recipe |
+| `data/finetuning/train.json` | versioned through Git LFS | training corpus |
+| `finetuning/training_log_history.json` | versioned | optimization diagnostics |
+| `finetuning/checkpoint-650/` | local and ignored | adapter used by the app |
+
+The adapter is integrated into the application, but it is still experimental.
+It has not yet been evaluated on a leakage-safe external holdout and must not be
+presented as a validated improvement over the other guards.
+
 ## Current implementation
 
 The notebook performs the following operations:
@@ -42,23 +55,34 @@ strings, and five prompt groups with conflicting labels. No exact prompt from
 Promptbreak Evaluation v1.1 occurs in the training file. The dataset is stored
 with Git LFS because of its size.
 
-`finetuning/training_log_history.json` contains 700 recorded training steps and
-13 validation runs through step 650. The best recorded validation F1 is 0.9382
-at step 600. These metrics are displayed in the web dashboard, but remain
-diagnostic because the random split has not yet been made leakage-safe.
+`finetuning/training_log_history.json` contains 70 training log entries at
+ten-step intervals through step 700 and 13 validation runs through step 650.
+The logged run reached 0.162 epochs. Its best recorded validation F1 is 0.9382
+at step 600 (accuracy 0.9747, precision 0.9364, recall 0.9400). The local
+checkpoint used by the app is from step 650, so it is not the checkpoint with
+the best logged F1. These metrics are displayed in the web dashboard, but they
+remain diagnostic because the random split is not leakage-safe.
 
 ## Local environment and application integration
 
-Install the notebook and inference dependencies with:
+Fetch the LFS dataset and install the notebook and inference dependencies with:
 
 ```bash
+git lfs pull
 uv sync --group finetuning
 ```
 
-The group pins `transformers==5.13.1` and includes PyTorch, Datasets, PEFT,
-Accelerate, bitsandbytes, scikit-learn, NumPy, and IPykernel. The web app loads
-the PEFT adapter lazily only when **Fine-tuned Llama guard** is selected. By
-default it looks for `finetuning/checkpoint-650`; override the location with:
+The optional dependency group pins `transformers==5.13.1` and includes PyTorch,
+Datasets, PEFT, Accelerate, bitsandbytes, scikit-learn, NumPy, and IPykernel.
+Start the application with:
+
+```bash
+uv run python -m promptbreak
+```
+
+The web app loads the PEFT adapter lazily only when **Fine-tuned Llama guard**
+is selected. By default it looks for `finetuning/checkpoint-650`; override the
+location with:
 
 ```bash
 PROMPTBREAK_FINETUNED_GUARD_PATH=/absolute/path/to/adapter \
@@ -68,7 +92,16 @@ PROMPTBREAK_FINETUNED_GUARD_PATH=/absolute/path/to/adapter \
 The base model is `meta-llama/Llama-3.2-1B`. It must be accessible through the
 local Hugging Face cache or an authenticated Hugging Face account. The first
 classification loads the base model and adapter and is therefore considerably
-slower than subsequent requests.
+slower than subsequent requests. The training notebook uses 4-bit NF4 loading,
+but application inference currently loads the base model in FP16 on CUDA and
+FP32 on MPS or CPU. Running the guard can therefore require substantially more
+memory than the QLoRA training configuration suggests.
+
+The application truncates classifier inputs to 256 tokens and combines the
+model with Promptbreak's lexical heuristics. It uses the application's default
+guard threshold of 0.55 for blocking; the raw `malicious` label shown in result
+metadata uses 0.5. The value 0.55 has not been calibrated specifically for this
+adapter and must be treated as a provisional application setting.
 
 Ollama can import supported Llama Safetensors and LoRA adapters for generative
 models, but this adapter is a `SEQ_CLS` PEFT model with a trained classification
@@ -81,24 +114,28 @@ responsible for the target model and the existing generative guards.
 The notebook is currently a training draft, not a self-contained reproducible
 artifact:
 
-- `MODEL_NAME`, `MAX_LENGTH`, `USE_4BIT`, and `OUTPUT_DIR` are referenced but
-  not defined in a checked-in configuration cell.
+- the model identifier and maximum length are repeated as hard-coded values,
+  while `OUTPUT_DIR` points to a user-specific Google Drive path
 - notebook cells have empty execution counts and no embedded output
-- a local adapter and tokenizer checkpoint exists at `finetuning/checkpoint-650`
-  but is intentionally ignored because it is a large generated artifact
-- the training log is versioned, but the final selected adapter, decision
-  threshold, and external test predictions are not frozen
+- the local adapter and tokenizer checkpoint at `finetuning/checkpoint-650` is
+  intentionally ignored because it is a large generated artifact
+- the available checkpoint is step 650 although the trainer state identifies
+  step 600 as the best checkpoint; the final adapter export is not available
+- the checkpoint's generated model card is still an unfilled template
+- the training log is versioned, but a selected adapter checksum, a
+  classifier-specific decision threshold, and external test predictions are
+  not frozen
 - base-model revision, package versions, hardware, training seed, and adapter
   checksum are not recorded
 - `data/finetuning/train.json` lists source names but does not yet provide
-  per-source URLs,
-  versions, licenses, or transformation notes
+  per-source URLs, versions, licenses, or transformation notes
 - an example-level random split can place duplicate or near-duplicate prompts
   in both training and validation data
 
-Before reporting a result, define and save the missing configuration, remove or
-resolve empty and conflicting records, deduplicate before splitting, and split
-by normalized prompt group and preferably by source or attack family.
+Before reporting a final result, centralize and save the configuration, replace
+the user-specific output path, remove or resolve empty and conflicting records,
+deduplicate before splitting, and split by normalized prompt group and
+preferably by source or attack family.
 
 ## Required evaluation
 
@@ -106,8 +143,10 @@ by normalized prompt group and preferably by source or attack family.
 
 Record the exact base-model identifier and revision, tokenizer, adapter files,
 maximum length, label mapping, random seed, software versions, GPU, training
-duration, and SHA-256 checksums. Select the malicious-class threshold on a
-dedicated validation set. Do not tune the threshold on any reported test set.
+duration, and SHA-256 checksums. Select either the best step-600 checkpoint or a
+new completed run deliberately; do not silently use step 650 merely because it
+is locally available. Select the malicious-class threshold on a dedicated
+validation set. Do not tune the threshold on any reported test set.
 
 ### 2. Evaluate classification independently
 

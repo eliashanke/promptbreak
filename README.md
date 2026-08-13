@@ -45,12 +45,12 @@ machine and natively supports system prompts, which is particularly useful for
 a prompt-injection comparison. Gemma 4 is the current model generation; users
 with less memory can use Gemma 3 instead.
 
-| Hardware | Recommendation | Download size | Notes |
-| --- | --- | ---: | --- |
-| 8 GB RAM | `gemma3:1b` | approx. 815 MB | fast, but considerably easier to bypass |
-| 16 GB RAM | `gemma3:4b` | approx. 3.3 GB | compact fallback |
-| 16–24 GB RAM | `gemma4:latest` | approx. 9.6 GB | **default on the target machine** |
-| 24+ GB RAM | `gemma4:12b` | approx. 7.6 GB | current generation, longer context |
+| Hardware     | Recommendation  |  Download size | Notes                                   |
+| ------------ | --------------- | -------------: | --------------------------------------- |
+| 8 GB RAM     | `gemma3:1b`     | approx. 815 MB | fast, but considerably easier to bypass |
+| 16 GB RAM    | `gemma3:4b`     | approx. 3.3 GB | compact fallback                        |
+| 16–24 GB RAM | `gemma4:latest` | approx. 9.6 GB | **default on the target machine**       |
+| 24+ GB RAM   | `gemma4:12b`    | approx. 7.6 GB | current generation, longer context      |
 
 Sizes are taken from the official Ollama pages for
 [Gemma 4](https://ollama.com/library/gemma4) and
@@ -64,13 +64,13 @@ several Chinese Ollama models. Download size is only a rough hardware proxy;
 parameter count, quantization, and architecture are not directly comparable.
 Information current as of July 31, 2026.
 
-| Alias | Ollama tag | Download | Context | Use |
-| --- | --- | ---: | ---: | --- |
-| `qwen35_4b` | `qwen3.5:4b` | 3.4 GB | 256K | memory-efficient tested comparison |
-| `qwen35_9b` | `qwen3.5:9b` | 6.6 GB | 256K | modern primary comparison |
-| `qwen3_14b` | `qwen3:14b` | 9.3 GB | 40K | closest download-size match |
-| `deepseek_r1_14b` | `deepseek-r1:14b` | 9.0 GB | 128K | reasoning-oriented comparison |
-| `glm4_9b` | `glm4:9b` | 5.5 GB | 128K | optional older comparison |
+| Alias             | Ollama tag        | Download | Context | Use                                |
+| ----------------- | ----------------- | -------: | ------: | ---------------------------------- |
+| `qwen35_4b`       | `qwen3.5:4b`      |   3.4 GB |    256K | memory-efficient tested comparison |
+| `qwen35_9b`       | `qwen3.5:9b`      |   6.6 GB |    256K | modern primary comparison          |
+| `qwen3_14b`       | `qwen3:14b`       |   9.3 GB |     40K | closest download-size match        |
+| `deepseek_r1_14b` | `deepseek-r1:14b` |   9.0 GB |    128K | reasoning-oriented comparison      |
+| `glm4_9b`         | `glm4:9b`         |   5.5 GB |    128K | optional older comparison          |
 
 Sources: [Qwen 3.5](https://ollama.com/library/qwen3.5),
 [Qwen 3](https://ollama.com/library/qwen3),
@@ -105,7 +105,9 @@ contains duplicate, empty, and conflicting records that must be resolved before
 a leakage-safe split is made. These values are training diagnostics, not final
 held-out evidence.
 The report figures can be regenerated with
-`uv run python -m experiments.visualize_training`.
+`uv run python -m experiments.visualize_training`. Compact security, utility,
+category, latency, and compute figures for the report are generated with
+`uv run python -m experiments.visualize_report_results`.
 See [`FINE_TUNING.md`](FINE_TUNING.md) for the implementation inventory,
 reproducibility requirements, attribution wording, and proposed evaluation.
 
@@ -128,6 +130,12 @@ dependency group and select **Fine-tuned Llama guard** in the app:
 uv sync --group finetuning
 uv run python -m promptbreak
 ```
+
+The local `finetuning/checkpoint-*` directories are generated artifacts and are
+not stored in Git. A clean clone therefore needs a separately distributed
+adapter (or a new training run) plus access to the gated
+`meta-llama/Llama-3.2-1B` base model before this option can load. The standard
+Ollama-backed application does not require Hugging Face access.
 
 Then open <http://127.0.0.1:8000>. If the Ollama application is not already
 running:
@@ -546,11 +554,10 @@ output filter misses it, but a separately implemented evaluator decodes it and
 correctly counts it as exfiltration. The defense mechanism and measurement
 instrument are therefore deliberately not identical.
 
-## Pitch lab
+## Research material
 
-A citable research overview and paper-based extension roadmap are available in
-[`LITERATURE.md`](LITERATURE.md); BibTeX entries are stored in
-[`references.bib`](references.bib).
+The submission report is available in [`report/`](report/); its BibTeX entries
+are stored in [`references.bib`](references.bib).
 
 ### Defense Builder
 
@@ -607,6 +614,7 @@ project/
 │   ├── repair_guard_report.py
 │   ├── sweep_guard_thresholds.py
 │   ├── visualize_results.py
+│   ├── visualize_report_results.py
 │   └── visualize_training.py
 ├── finetuning/
 │   ├── overfiltering.ipynb  # experimental PIGuard-inspired Llama QLoRA training
@@ -634,6 +642,20 @@ The unit tests do not require a model:
 ```bash
 uv run python -m unittest discover -s tests -v
 ```
+
+## AI use disclosure
+
+OpenAI Codex was used as a development assistant for language editing and
+translation, repository refactoring, drafting code and tests, and producing visualization drafts. All suggested text and code
+was reviewed and revised by the project authors, and reported values were
+checked against the versioned JSON results and training logs.
+
+Codex was not
+treated as an empirical source or evaluation judge; the authors retain
+responsibility for the design, interpretation, and final project.
+
+This use is
+separate from the local language models evaluated as part of Promptbreak.
 
 ## Limitations and safety
 

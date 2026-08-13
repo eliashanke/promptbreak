@@ -59,7 +59,7 @@ PRICING_PROFILES = (
         "match": "exact",
         "note": "Exact model; non-thinking output price. Every recorded call is priced with this profile.",
         "sourceUrl": "https://www.alibabacloud.com/help/en/model-studio/model-pricing",
-        "checkedAt": "2026-08-07",
+        "checkedAt": "2026-08-13",
     },
     {
         "id": "qwen35-flash-eu-proxy",
@@ -72,7 +72,7 @@ PRICING_PROFILES = (
         "match": "proxy",
         "note": "Pricing proxy only: Alibaba lists no direct Qwen 3.5 4B endpoint.",
         "sourceUrl": "https://www.alibabacloud.com/help/en/model-studio/model-pricing",
-        "checkedAt": "2026-08-07",
+        "checkedAt": "2026-08-13",
     },
     {
         "id": "gemma4-ai-studio-free",
