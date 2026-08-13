@@ -341,19 +341,19 @@ class PublicApiTests(unittest.TestCase):
             self.assertNotIn(level.secret, serialized)
 
     def test_first_level_has_tutorial_qa_weakness(self):
-        self.assertIn("LEGACY-QA-AUSNAHME", LEVELS[0].system_context)
+        self.assertIn("LEGACY QA EXCEPTION", LEVELS[0].system_context)
 
     def test_second_level_has_narrow_export_weakness(self):
         context = LEVELS[1].system_context
-        self.assertIn("LEGACY-EXPORT-PROTOKOLL", context)
+        self.assertIn("LEGACY EXPORT PROTOCOL", context)
         self.assertIn("archive_config", context)
         self.assertIn("migrated_token", context)
 
     def test_third_level_requires_ordered_recovery_sequence(self):
         context = LEVELS[2].system_context
-        for marker in ("BLACKOUT-7", "Offline-Maintenance-Modus", "Recovery-Export"):
+        for marker in ("BLACKOUT-7", "offline maintenance mode", "recovery export"):
             self.assertIn(marker, context)
-        self.assertIn("nicht in einer einzigen Nachricht", context)
+        self.assertIn("may not be combined in one message", context)
 
 
 class ScriptedExploitTests(unittest.TestCase):

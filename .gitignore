@@ -7,6 +7,7 @@ htmlcov/
 .ruff_cache/
 .DS_Store
 .venv/
+node_modules/
 .env
 .ipynb_checkpoints/
 build/
@@ -36,3 +37,6 @@ evaluation-results/visualizations/*/*
 
 # Local Typst render checks.
 pitch/tmp/
+
+# Reproducible demo-video renders are generated locally.
+scripts/demo/output/

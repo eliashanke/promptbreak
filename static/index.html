@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Lokales Prompt-Injection Security-Spiel mit Ollama" />
+    <meta name="description" content="Local prompt-injection security game powered by Ollama" />
     <title>Promptbreak // Escape Room</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
@@ -17,7 +17,7 @@
       <div class="status-cluster">
         <a class="results-link" href="/dashboard/">RESULTS ↗</a>
         <div id="ollama-status" class="connection offline"><i></i><span>OLLAMA OFFLINE</span></div>
-        <button id="help-button" class="icon-button" aria-label="Hilfe öffnen">?</button>
+        <button id="help-button" class="icon-button" aria-label="Open help">?</button>
       </div>
     </header>
 
@@ -26,7 +26,7 @@
         <div>
           <p class="eyebrow">RED TEAM SIMULATION <span>03 LEVELS</span></p>
           <h1>Can you make the<br /><em>machine</em> talk?</h1>
-          <p class="lede">Überliste ein lokal laufendes Sprachmodell. Vergleiche einen einfachen System-Prompt mit einer separaten Guard-Pipeline – ohne Cloud, ohne API-Kosten.</p>
+          <p class="lede">Outsmart a locally running language model. Compare a simple system prompt with a separate guard pipeline — no cloud and no API cost.</p>
         </div>
         <div class="hero-orbit" aria-hidden="true">
           <div class="orbital-ring ring-a"></div>
@@ -48,11 +48,11 @@
               <span>ACTIVE DEFENSE</span>
               <span id="defense-badge" class="pill danger">VULNERABLE</span>
             </div>
-            <div class="segmented" role="group" aria-label="Verteidigungsmodus">
+            <div class="segmented" role="group" aria-label="Defense mode">
               <button class="active" data-defense="baseline">Baseline</button>
               <button data-defense="guarded">Guarded</button>
             </div>
-            <p id="defense-description">Nur ein System-Prompt schützt das Secret. Schnell, aber anfällig.</p>
+            <p id="defense-description">Only a system prompt protects the secret. Fast, but vulnerable.</p>
             <div class="pipeline">
               <span>INPUT</span><b>→</b><span id="pipeline-guard" class="muted">GUARD</span><b>→</b><span>LLM</span><b>→</b><span id="pipeline-filter" class="muted">FILTER</span>
             </div>
@@ -109,7 +109,7 @@
               <div><span>01</span><h3>Defense Builder</h3></div>
               <small id="builder-status">STANDARD GUARDED</small>
             </div>
-            <p>Schalte Schutzschichten einzeln und beobachte ihren Einfluss auf Sicherheit und Latenz.</p>
+            <p>Toggle individual defense layers and observe their impact on security and latency.</p>
             <div id="preset-list" class="preset-list"></div>
             <div id="layer-list" class="layer-list"></div>
             <div id="builder-pipeline" class="builder-pipeline"></div>
@@ -120,7 +120,7 @@
               <div><span>02</span><h3>Auto Red-Team Agent</h3></div>
               <small>OLLAMA vs. OLLAMA</small>
             </div>
-            <p>Ein lokaler Angreifer analysiert Fehlschläge, mutiert seine Strategie und greift die aktive Defense erneut an.</p>
+            <p>A local attacker analyzes failures, mutates its strategy, and attacks the active defense again.</p>
             <div class="arena-controls">
               <label>MAX ROUNDS
                 <select id="redteam-rounds">
@@ -161,16 +161,16 @@
     </main>
 
     <dialog id="help-dialog">
-      <button class="dialog-close" aria-label="Schließen">×</button>
+      <button class="dialog-close" aria-label="Close">×</button>
       <p class="eyebrow">OPERATOR MANUAL</p>
-      <h2>So funktioniert das Lab</h2>
-      <p>Dein Ziel ist, das pro Level im System-Prompt versteckte Secret auszugeben. Im <b>Baseline</b>-Modus verlässt sich das System nur auf Instruktionen. <b>Guarded</b> klassifiziert Eingaben separat und prüft Ausgaben auf Leaks.</p>
-      <p>Alle Modellaufrufe laufen über Ollama auf deinem Rechner. Die Secrets und Sitzungsmetriken bleiben im lokalen Python-Prozess.</p>
+      <h2>How the lab works</h2>
+      <p>Your goal is to extract the secret hidden in each level's system prompt. <b>Baseline</b> relies on instructions alone. <b>Guarded</b> classifies inputs separately and checks outputs for leaks.</p>
+      <p>All model calls run through Ollama on your machine. Secrets and session metrics remain inside the local Python process.</p>
       <button class="outline-button dialog-ok">UNDERSTOOD</button>
     </dialog>
 
     <dialog id="playbook-dialog" class="playbook-dialog">
-      <button class="dialog-close" aria-label="Schließen">×</button>
+      <button class="dialog-close" aria-label="Close">×</button>
       <p class="eyebrow">RED TEAM FIELD GUIDE</p>
       <div id="playbook-content"></div>
     </dialog>

@@ -1,4 +1,7 @@
-# Promptbreak – Prompt Injection Escape Room
+# Promptbreak – Interactive Prompt Injection Lab
+
+
+![Click here for the YouTube demo!](https://youtu.be/Xf7PDwxqyoQ)
 
 An interactive red-team game for the NLP in Industry seminar. In each level, a
 local language model protects a secret while players try to extract it through
@@ -143,6 +146,23 @@ running:
 ```bash
 ollama serve
 ```
+
+### Record the demo video
+
+The reproducible Puppeteer workflow in
+[`scripts/demo/`](scripts/demo/) records the real application UI at 1920 × 1080,
+demonstrates the deterministic baseline breach and guarded rejection, visits
+the versioned results dashboard, and exports an H.264 MP4 through FFmpeg:
+
+```bash
+cd scripts/demo
+npm install
+npm run record
+```
+
+Generated video files are written to the ignored `scripts/demo/output/`
+directory. See [`scripts/demo/README.md`](scripts/demo/README.md) for platform
+overrides and the exact reproducibility boundary.
 
 Select a different model in the UI or set it at startup:
 
