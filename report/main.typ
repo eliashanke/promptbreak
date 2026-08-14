@@ -8,8 +8,8 @@
   anonymous: false,
   title: [Promptbreak: Evaluating Layered Defenses Against Prompt Injection in a Local Security Game],
   authors: make-authors(
-    (name: "Amirreza Tarabkhah", affiliation: [Heidelberg University \ #email("@cl.uni-heidelberg.de")]),
-    (name: "Zakey Sodo", affiliation: [Heidelberg University \ #email("@cl.uni-heidelberg.de")]),
+    (name: "Amirreza Tarabkhah", affiliation: [Heidelberg University \ #email("tarabkhah@cl.uni-heidelberg.de")]),
+    (name: "Zakey Sodo", affiliation: [Heidelberg University \ #email("sodo@cl.uni-heidelberg.de")]),
     (name: "Elias Hanke", affiliation: [Heidelberg University \ #email("hanke@cl.uni-heidelberg.de")]),
   ),
 )
@@ -49,9 +49,9 @@ Defenses face a two-sided problem. Missing an attack can expose protected state,
 whereas rejecting benign requests that merely contain suspicious vocabulary
 makes an application unusable. This second failure mode, often called
 overdefense, motivates contrast sets such as NotInject and XSTest
-#citep("li2025piguard", "rottger2024xstest"). Security evaluation should consequently
-measure attack success and benign utility together, alongside the latency and
-compute introduced by additional model calls.
+#citep("li2025piguard", "rottger2024xstest"). Security evaluation should
+consequently measure attack success and benign utility together. It should
+also account for the latency and compute introduced by additional model calls.
 
 We introduce *Promptbreak*, a local prompt-injection escape room coupled to a
 reproducible evaluation harness. Its purpose is both pedagogical and empirical:
@@ -138,10 +138,10 @@ We compare five fixed configurations:
   context-aware guard, and direct plus encoded output-leak detectors.
 
 #figure(
-  image("../pitch/assets/defense-pipeline.svg", width: 95%),
-  caption: [The layered Promptbreak defense pipeline. Requests can be rejected
-    before target generation, while direct and encoded leaks can be redacted
-    afterward.],
+  image("../pitch/assets/defense-pipeline.svg", width: 88%),
+  caption: [The layered Promptbreak request path. The input guard can refuse
+    before target generation; the output filter can redact direct or encoded
+    leaks before a clean response reaches the client.],
 ) <fig:pipeline>
 
 The output filter recognizes direct, hexadecimal, ROT13, reversed, and Base64
@@ -153,18 +153,27 @@ defense.
 == Experimental fine-tuned Llama guard
 
 The repository additionally contains a PIGuard-inspired training notebook for a
-binary Llama sequence classifier. It uses optional 4-bit NF4 quantization and
-LoRA adapters with rank 16 on the query, key, value, and output attention
-projections. The source-tagged corpus contains 76,735 records: 61,069 benign
-prompts and 15,666 injections. The notebook creates a stratified 90/10 split and
-trains for 200 optimization steps with an effective batch size of 16.
+binary Llama sequence classifier based on
+`meta-llama/Llama-3.2-1B`. Inputs are truncated to 256 tokens. The notebook
+loads the base model with 4-bit NF4 quantization and trains LoRA adapters with
+rank 16, alpha 32, and dropout 0.05 on the query, key, value, and output
+attention projections; the classification head is saved alongside the adapter.
+The source-tagged corpus contains 76,735 records: 61,069 benign prompts and
+15,666 injections. It creates a random stratified 90/10 split with seed 42 and
+an effective batch size of 16.
+
+One epoch was configured, but the available log covers only 700 optimization
+steps, or 0.162 epochs, with validation every 50 steps. When the unversioned
+local step-650 checkpoint is present, the application can load it directly
+through Transformers and PyTorch. It is not routed through Ollama because the
+artifact is a sequence classifier, not a generative model adapter.
 
 This model must not be described as PIGuard. It changes the base architecture
 from DeBERTa to Llama and does not implement MOF's token-wise recheck and
 adaptive benign-data generation. At the time of writing, the notebook also does
-not record an exact base-model identifier, maximum input length, completed
-training outputs, or a versioned adapter artifact. We therefore treat it as an
-experimental method whose evaluation is pending, not as an additional result.
+not produce a source-disjoint holdout or a completed multi-seed run. We
+therefore treat its validation trajectory as optimization diagnostics, not as
+an additional benchmark result.
 
 = Evaluation
 
@@ -205,7 +214,8 @@ It evaluates all 30 cases once per configuration (150 observations). A final
 three-repeat run is still pending; the results below must therefore be read as a
 complete single pass, not as a variance estimate.
 
-The fine-tuned guard will be evaluated as a sixth standalone configuration and
+The fine-tuned guard's internal split metrics are reported below only as
+optimization diagnostics. It will be evaluated as a sixth standalone configuration and
 as a replacement for the learned input classifier inside the full pipeline.
 Threshold selection will use a separate validation split. Final tests will
 combine Promptbreak Evaluation v1.1 for application-specific ASR with the
@@ -222,20 +232,21 @@ at least three independent training seeds.
   table(
     columns: (1.55fr, 0.7fr, 0.7fr, 0.7fr, 0.85fr, 0.8fr),
     align: (left, right, right, right, right, right),
-    [*Configuration*], [*ASR ↓*], [*FPR ↓*], [*F1 ↑*], [*Mean ms*], [*Calls*],
+    [*Configuration*], [*ASR ↓*], [*E2E BR ↓*], [*F1 ↑*], [*Mean ms*], [*Calls*],
     [Prompt only], [100.0], [0.0], [0.000], [4,001], [15],
     [Promptbreak Guard], [13.3], [0.0], [0.929], [7,456], [43],
     [Llama Guard 3], [66.7], [0.0], [0.500], [5,575], [45],
     [ShieldGemma], [100.0], [0.0], [0.000], [4,949], [45],
     [Full Pipeline], [0.0], [13.3#super[1]], [0.938], [7,017], [40],
   ),
-  caption: [Qwen 3.5 4B single-pass results over 30 cases. ASR and FPR are
-    percentages. Calls are totals. #super[1]Both benign blocks were produced by
+  caption: [Qwen 3.5 4B single-pass results over 30 cases. ASR and end-to-end
+    benign block rate (E2E BR) are percentages; F1 classifies end-to-end blocks.
+    Calls are totals. #super[1]Both benign blocks were produced by
     the output filter after target-model leaks; the input guard itself had 0.0%
     FPR.],
 ) <tab:main-results>
 
-Table @tab:main-results shows that a system prompt alone provides no protection
+@tab:main-results shows that a system prompt alone provides no protection
 against the deterministic attack paths. ShieldGemma behaves identically on
 attack success, suggesting that its general safety policy does not cover these
 application-specific attacks. Llama Guard detects five of fifteen attacks
@@ -256,6 +267,70 @@ and processes 14,736 tokens. The full pipeline makes 40 calls and processes
 14,226 tokens; early blocking explains why it uses fewer calls than a uniform
 two-model cascade. Mean latency rises from 4.0 seconds for prompt only to 7.5
 seconds for the Promptbreak Guard and 7.0 seconds for the full pipeline.
+
+== Cost interpretation
+
+#figure(
+  table(
+    columns: (1.55fr, 0.7fr, 0.8fr, 0.85fr),
+    align: (left, right, right, right),
+    [*Configuration*], [*Calls*], [*Tok.*], [*USD/1k*],
+    [Prompt only], [0.500], [213.7], [0.053],
+    [Promptbreak Guard], [1.433], [491.2], [0.091],
+    [Llama Guard 3], [1.500], [445.4], [0.080],
+    [ShieldGemma], [1.500], [585.1], [0.092],
+    [Full Pipeline], [1.333], [474.2], [0.091],
+  ),
+  caption: [Measured calls and tokens per case, plus a counterfactual API
+    estimate per 1,000 cases. The estimate applies the Qwen 3.5 Flash EU proxy price of USD 0.10/M
+    input and USD 0.40/M output tokens to every recorded call. It is not an
+    actual mixed-model provider bill.],
+) <tab:cost-scenario>
+
+All measured runs use local Ollama inference and therefore incur zero provider
+API fees. For a scale reference, @tab:cost-scenario applies Alibaba Cloud's
+Qwen 3.5 Flash EU price to the recorded token traces #citep("alibabacloud2026modelpricing").
+There is no exact hosted Qwen 3.5 4B price, and the Llama Guard and ShieldGemma
+calls use different model families, so the calculation is deliberately a
+uniform volume scenario rather than a deployment quote. Under this scenario,
+Promptbreak Guard costs about USD 0.091 per 1,000 benchmark cases: nearly the
+same as the Full Pipeline and ShieldGemma, higher than Llama Guard, and 72%
+higher than Prompt only. Promptbreak can avoid cloud API charges when deployed
+locally, but the experiment does not establish lower total cost because it does
+not meter hardware amortization, memory, or electricity.
+
+== Fine-tuning diagnostics
+
+#figure(
+  image("assets/finetuning-validation.svg", width: 100%),
+  caption: [Validation metrics from the random stratified training split. The
+    best recorded F1 occurs at step 600. These are diagnostics rather than
+    leakage-safe held-out results.],
+) <fig:finetuning-validation>
+
+@fig:finetuning-validation summarizes 13 evaluations. Validation F1 rises from
+0.087 at step 50 to a maximum
+of 0.938 at step 600. At that checkpoint, accuracy is 0.975, precision 0.936,
+and recall 0.940. The final recorded evaluation at step 650 has F1 0.932,
+precision 0.970, and recall 0.897. The highest precision therefore does not
+coincide with the best F1, illustrating why checkpoint and decision-threshold
+selection must be fixed before external evaluation. Validation loss reaches its
+minimum of 0.123 at step 450 and is 0.126 at step 650.
+
+#figure(
+  image("assets/finetuning-optimization.svg", width: 100%),
+  caption: [Training and validation loss with gradient norms for the partial
+    fine-tuning run. Training values are averages over ten-step logging
+    windows; the gradient axis is logarithmic.],
+) <fig:finetuning-optimization>
+
+@fig:finetuning-optimization shows a rapid reduction from the high early
+training losses, while gradient norms remain highly variable. The trajectory
+is consistent with the classifier learning a useful signal, but it is not
+evidence of completed convergence: the log ends after only 0.162 of the
+configured epoch. Moreover, the random example-level split can place duplicate
+or closely related prompts on both sides. These metrics are consequently not
+comparable to the source-independent main benchmark in @tab:main-results.
 
 == Adaptive Rainbow-lite evaluation
 
@@ -278,11 +353,20 @@ heuristics and threshold are calibrated against benign contrasts. Third,
 post-generation filtering remains useful because a classifier can miss attacks
 and even a benign request can elicit protected state from the target model.
 
+The internal fine-tuning trajectory shows that a compact Llama classifier can
+fit the available labels quickly. Its high validation score should not yet be
+interpreted as generalization, because corpus duplication and source overlap
+may make the random split optimistic. A paired evaluation on frozen external
+sets is required before comparing it with the deployed guard baselines.
+
 Defense-in-depth is not free. Additional calls approximately double token use
 and increase mean latency. Early refusal can also make aggregate percentiles
 look deceptively favorable, which is why response-path-specific timing is
 necessary. The distinction between guard refusal and output-filter intervention
-is equally important for utility analysis.
+is equally important for utility analysis. Likewise, zero local API fees should
+not be confused with zero operating cost: the measured evidence supports a
+low counterfactual token bill, but not a claim that Promptbreak is cheaper
+overall than every baseline.
 
 == Limitations
 
@@ -300,7 +384,8 @@ AgentDojo #citep("yi2023bipia", "debenedetti2024agentdojo").
 The fine-tuning corpus introduces further validity risks. It contains exact
 duplicates, three empty prompts, and five duplicated prompt groups with
 conflicting labels. An example-level random split can consequently leak related
-prompts into validation. Before reporting the fine-tuned model, we will resolve
+prompts into validation. Before treating its diagnostic metrics as model
+evidence, we will resolve
 these records, group exact and near duplicates, freeze source-disjoint splits,
 document dataset licenses, and keep both NotInject and the Promptbreak test set
 outside training.
@@ -320,17 +405,25 @@ systems on both security and utility.
 
 = Reproducibility
 
-The repository contains the frozen dataset, complete JSON reports, model-free
-unit tests, visualization scripts, and all command lines required to reproduce
-the study. The main comparison is run with `experiments.compare_guards`;
-adaptive search uses `experiments.rainbow_lite`; and
-`experiments.visualize_results` regenerates the SVG figures.
-All model inference uses local Ollama endpoints and records the exact model tags
-in each result file.
+The repository includes the frozen dataset, JSON reports, model-free tests, and
+visualization scripts. `experiments.compare_guards` runs the main comparison and
+`experiments.rainbow_lite` the adaptive search. The three visualization modules
+regenerate all figures. Local Ollama inference records exact model tags in each
+result file.
 
-The fine-tuning notebook, source-tagged corpus, and a separate protocol document
-are included for inspection. A reproducible release will additionally require
-the exact base-model revision, adapter checksum, tokenizer, training log,
-decision threshold, software versions, and hardware description.
+The fine-tuning notebook, source-tagged corpus, training log, exact base-model
+identifier, tokenizer family, maximum input length, and a separate protocol
+document are included for inspection. Trainer checkpoints are intentionally
+ignored as large generated artifacts, so a clean clone does not include the
+local step-650 adapter. A reproducible release will additionally require a
+licensed adapter distribution, the exact base-model revision, a frozen adapter
+checksum, decision threshold, software versions, hardware description, and
+source-disjoint dataset manifests.
+
+*AI use disclosure.* OpenAI Codex assisted with editing, translation,
+refactoring, code and test drafts, and visualizations. The authors reviewed its
+outputs and verified reported values against versioned logs. Codex was neither
+an empirical source nor evaluation judge; the authors retain responsibility for
+the work. This is separate from the local models evaluated in Promptbreak.
 
 #print-acl-bibliography()

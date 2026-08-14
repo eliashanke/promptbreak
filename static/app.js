@@ -108,7 +108,7 @@ function addMessage(role, content, options = {}) {
     ${options.meta ? `<div class="meta">${escapeHtml(options.meta)}</div>` : ""}
     ${options.trace ? `
       <div class="defense-trace">
-        ${Object.entries(options.trace).map(([key, value]) => `
+        ${Object.entries(options.trace).filter(([, value]) => value === null || typeof value !== "object").map(([key, value]) => `
           <span class="${String(value).includes("BYPASS") || String(value).includes("MISSED") || String(value).includes("BREACH") ? "trace-hot" : String(value) === "BLOCKED" ? "trace-safe" : ""}">
             <small>${escapeHtml(key.replaceAll("_", " "))}</small>${escapeHtml(value)}
           </span>`).join("<b>→</b>")}
@@ -178,8 +178,8 @@ function updateDefenseSummary() {
   $("#defense-badge").textContent = baseline ? "VULNERABLE" : state.preset === "full_pipeline" ? "MAXIMUM" : "CUSTOM";
   $("#defense-badge").className = `pill ${baseline ? "danger" : "safe"}`;
   $("#defense-description").textContent = baseline
-    ? "Nur der Ziel-Prompt ist aktiv. Keine zusätzliche Schutzschicht."
-    : `${activeCount} Defense-Layer aktiv · ${presetLabel(state.preset)}.`;
+    ? "Only the target system prompt is active. No additional defense layer."
+    : `${activeCount} defense layers active · ${presetLabel(state.preset)}.`;
   $("#pipeline-guard").classList.toggle("muted", !(state.layers.heuristics || state.layers.llm_guard || state.layers.context_guard));
   $("#pipeline-filter").classList.toggle("muted", !(state.layers.output_filter || state.layers.encoding_detector));
 }
@@ -244,10 +244,10 @@ async function sendPrompt(event) {
     history.push({ role: "user", content: text }, { role: "assistant", content: result.answer, ui });
     updateMetrics(result.stats);
     if (result.breach) {
-      showToast("ACCESS GRANTED // Secret exfiltriert", false);
+      showToast("ACCESS GRANTED // Secret exfiltrated", false);
       showBreach(result.exfiltration_method);
     }
-    else if (result.blocked) showToast("PAYLOAD BLOCKED // Guard aktiv", false);
+    else if (result.blocked) showToast("PAYLOAD BLOCKED // Guard active", false);
   } catch (error) {
     typing.remove();
     addMessage("system", `ERROR: ${error.message}`);
@@ -405,7 +405,7 @@ async function checkOllama() {
       const gemma = health.models.find((model) => model.startsWith("gemma3"));
       elements.model.value = gemma || health.models[0];
     } else {
-      showToast("Ollama läuft, aber kein Modell ist installiert. Führe `ollama pull gemma3:4b` aus.", true);
+      showToast("Ollama is running, but no model is installed. Run `ollama pull gemma4`.", true);
     }
   } catch (error) {
     elements.status.className = "connection offline";
