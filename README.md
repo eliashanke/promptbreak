@@ -1,7 +1,7 @@
 # Promptbreak – Interactive Prompt Injection Lab
 
 
-![Click here for the YouTube demo!](https://youtu.be/Xf7PDwxqyoQ)
+A demo of Promptbreak is available on YouTube: https://youtu.be/Xf7PDwxqyoQ
 
 An interactive red-team game for the NLP in Industry seminar. In each level, a
 local language model protects a secret while players try to extract it through
